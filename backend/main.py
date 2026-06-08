@@ -5,7 +5,7 @@ from sqlalchemy import text
 
 from db import engine, Base
 from schemas import HealthResponse
-from routes import documents, sessions, questions
+from routes import documents, sessions, questions, answers
 import models  # noqa: F401 — registers ORM models with Base
 
 
@@ -13,6 +13,8 @@ import models  # noqa: F401 — registers ORM models with Base
 async def lifespan(app: FastAPI):
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
+        await conn.execute(text("ALTER TABLE answers ADD COLUMN IF NOT EXISTS follow_up TEXT"))
+        await conn.execute(text("ALTER TABLE answers ADD COLUMN IF NOT EXISTS rubric_basis TEXT"))
     yield
 
 
@@ -20,6 +22,7 @@ app = FastAPI(title="Interview Coach API", lifespan=lifespan)
 app.include_router(documents.router)
 app.include_router(sessions.router)
 app.include_router(questions.router)
+app.include_router(answers.router)
 
 
 @app.get("/health", response_model=HealthResponse)

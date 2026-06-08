@@ -44,6 +44,8 @@ class Answer(Base):
     strengths: Mapped[str | None] = mapped_column(Text)
     weaknesses: Mapped[str | None] = mapped_column(Text)
     improved_answer: Mapped[str | None] = mapped_column(Text)
+    follow_up: Mapped[str | None] = mapped_column(Text)
+    rubric_basis: Mapped[str | None] = mapped_column(Text)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
 
     question: Mapped["Question"] = relationship(back_populates="answers")

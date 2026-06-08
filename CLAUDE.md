@@ -27,6 +27,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Conventions
 - 커밋 메시지 — 영어, `Description` 형식 (첫 글자 대문자, 간결하게)
 - 커밋 전 반드시 사용자에게 커밋 메시지를 먼저 보여주고 확인받을 것. 확인 없이 커밋 금지.
+- 커밋 메시지에 Co-Authored-By 라인 절대 포함하지 말 것.
 - Python — PEP 8 준수, 타입 힌트 사용
 - API 응답 — Pydantic 스키마로 검증
 - 주석/문서 — 기술 문서는 영어, 설명은 한국어 가능

@@ -50,3 +50,20 @@ class QuestionRequest(BaseModel):
 class QuestionResponse(BaseModel):
     technical: list[QuestionItem]
     experience: list[QuestionItem]
+
+
+class AnswerRequest(BaseModel):
+    question_id: int
+    answer_text: str
+
+
+class AnswerResponse(BaseModel):
+    id: int
+    score_clarity: int | None
+    score_specific: int | None
+    score_technical: int | None
+    strengths: str | None
+    weaknesses: str | None
+    improved_answer: str | None
+    follow_up: str | None
+    rubric_basis: str | None

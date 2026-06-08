@@ -5,6 +5,7 @@ from sqlalchemy import text
 
 from db import engine, Base
 from schemas import HealthResponse
+from routes import documents
 import models  # noqa: F401 — registers ORM models with Base
 
 
@@ -16,6 +17,7 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(title="Interview Coach API", lifespan=lifespan)
+app.include_router(documents.router)
 
 
 @app.get("/health", response_model=HealthResponse)

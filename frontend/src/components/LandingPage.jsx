@@ -29,7 +29,7 @@ const FEATURES = [
   },
 ]
 
-export default function LandingPage({ onStart }) {
+export default function LandingPage({ onStart, onHistory }) {
   return (
     <div className="bg-white">
       {/* Hero */}
@@ -44,15 +44,23 @@ export default function LandingPage({ onStart }) {
           이력서와 채용공고를 분석해 맞춤 질문을 생성하고,
           구조화된 평가 기준으로 답변을 피드백합니다.
         </p>
-        <button
-          onClick={onStart}
-          className="inline-flex items-center gap-2 px-7 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg text-sm transition-colors"
-        >
-          시작하기
-          <svg viewBox="0 0 16 16" fill="currentColor" className="w-4 h-4">
-            <path fillRule="evenodd" d="M1 8a.5.5 0 01.5-.5h11.793l-3.147-3.146a.5.5 0 01.708-.708l4 4a.5.5 0 010 .708l-4 4a.5.5 0 01-.708-.708L13.293 8.5H1.5A.5.5 0 011 8z" clipRule="evenodd" />
-          </svg>
-        </button>
+        <div className="flex items-center gap-4 justify-center">
+          <button
+            onClick={onStart}
+            className="inline-flex items-center gap-2 px-7 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg text-sm transition-colors"
+          >
+            시작하기
+            <svg viewBox="0 0 16 16" fill="currentColor" className="w-4 h-4">
+              <path fillRule="evenodd" d="M1 8a.5.5 0 01.5-.5h11.793l-3.147-3.146a.5.5 0 01.708-.708l4 4a.5.5 0 010 .708l-4 4a.5.5 0 01-.708-.708L13.293 8.5H1.5A.5.5 0 011 8z" clipRule="evenodd" />
+            </svg>
+          </button>
+          <button
+            onClick={onHistory}
+            className="text-sm text-gray-500 hover:text-gray-700 transition-colors"
+          >
+            기록 보기
+          </button>
+        </div>
       </div>
 
       {/* Divider */}

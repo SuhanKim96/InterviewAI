@@ -31,3 +31,9 @@ export const submitAnswer = (body) =>
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
   }).then(json)
+
+export const getSessions = () =>
+  fetch(`${BASE}/sessions`).then(json)
+
+export const getHistory = (sessionId) =>
+  fetch(`${BASE}/history?session_id=${sessionId}`).then(json)

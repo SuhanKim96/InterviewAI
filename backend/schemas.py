@@ -67,3 +67,26 @@ class AnswerResponse(BaseModel):
     improved_answer: str | None
     follow_up: str | None
     rubric_basis: str | None
+
+
+class AnswerSummary(BaseModel):
+    id: int
+    question: str
+    category: str | None
+    score_clarity: int | None
+    score_specific: int | None
+    score_technical: int | None
+    created_at: datetime
+
+
+class ScoreTrendPoint(BaseModel):
+    label: str
+    clarity: float | None
+    specific: float | None
+    technical: float | None
+
+
+class HistoryResponse(BaseModel):
+    answers: list[AnswerSummary]
+    score_trend: list[ScoreTrendPoint]
+    weak_area: str | None

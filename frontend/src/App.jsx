@@ -4,6 +4,7 @@ import LandingPage from './components/LandingPage.jsx'
 import DocumentUpload from './components/DocumentUpload.jsx'
 import JDInput from './components/JDInput.jsx'
 import QuestionCard from './components/QuestionCard.jsx'
+import HistoryPage from './components/HistoryPage.jsx'
 
 export default function App() {
   const [step, setStep] = useState('landing')
@@ -40,9 +41,15 @@ export default function App() {
     <div className="min-h-screen bg-gray-50">
       <Navbar step={step} onHome={goHome} />
 
-      {step === 'landing' && <LandingPage onStart={() => setStep('upload')} />}
+      {step === 'landing' && <LandingPage onStart={() => setStep('upload')} onHistory={() => setStep('history')} />}
 
-      {step !== 'landing' && (
+      {step === 'history' && (
+        <main className="max-w-4xl mx-auto px-4 py-2">
+          <HistoryPage onBack={() => setStep('landing')} />
+        </main>
+      )}
+
+      {step !== 'landing' && step !== 'history' && (
         <main className="max-w-3xl mx-auto px-4 py-8">
           {step === 'upload' && (
             <DocumentUpload onDone={() => setStep('jd')} onBack={() => setStep('landing')} />

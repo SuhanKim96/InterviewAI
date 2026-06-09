@@ -19,9 +19,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - LangChain — LLM 체인 + RAG
 
 ## Commands
+- 최초 셋업 — `cp .env.example .env` 후 `.env`에 `OPENAI_API_KEY` 입력
+- DB 띄우기 — `docker-compose up -d` (PostgreSQL 컨테이너 + DB + 테이블 자동 생성)
+- 루브릭 시드 — `cd backend && python scripts/seed_rubrics.py` (최초 1회)
 - 백엔드 실행 — `cd backend && uvicorn main:app --reload`
 - 프론트 실행 — `cd frontend && npm run dev`
-- DB 띄우기 — `docker-compose up -d`
 - 테스트 — `cd backend && pytest`
 
 ## Conventions

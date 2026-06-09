@@ -1,9 +1,9 @@
-"""루브릭 시드 스크립트 — 최초 1회 실행: cd backend && python scripts/seed_rubrics.py"""
+"""루브릭 시드 스크립트 — 이미 시드됐으면 자동으로 건너뜀"""
 import sys
 import os
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from services.rubrics import index_rubric
+from services.rubrics import index_rubric, _rubric_store
 
 RUBRICS = [
     (
@@ -124,6 +124,10 @@ ORM 없이 raw SQL만 쓰자고 했고 저는 유지보수성 때문에 SQLAlche
 
 
 def main() -> None:
+    existing = _rubric_store.get()
+    if len(existing["ids"]) >= len(RUBRICS):
+        print(f"루브릭이 이미 인덱싱됨 ({len(existing['ids'])}개). 건너뜁니다.")
+        return
     print(f"루브릭 {len(RUBRICS)}개 인덱싱 시작...")
     for category, name, text in RUBRICS:
         index_rubric(text, category=category, name=name)

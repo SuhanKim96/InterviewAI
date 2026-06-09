@@ -63,7 +63,7 @@ export default function DocumentUpload({ onDone, onBack }) {
         </button>
       )}
       <h2 className="text-base font-semibold text-gray-900 mb-1">문서 업로드</h2>
-      <p className="text-sm text-gray-500 mb-6">이력서와 포트폴리오를 인덱싱해 맞춤 질문 생성에 활용합니다.</p>
+      <p className="text-sm text-gray-500 mb-6">이력서와 포트폴리오를 분석해 맞춤 질문 생성에 활용합니다.</p>
 
       {/* Drop zone */}
       <div
@@ -85,8 +85,8 @@ export default function DocumentUpload({ onDone, onBack }) {
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" className="w-7 h-7 mx-auto mb-2 text-gray-400">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
         </svg>
-        <p className="text-sm font-medium text-gray-600">PDF를 끌어놓거나 클릭해서 선택</p>
-        <p className="text-xs text-gray-400 mt-1">이력서, 포트폴리오 등 여러 파일 선택 가능</p>
+        <p className="text-sm font-medium text-gray-600">이력서/포트폴리오 PDF를 끌어놓거나 클릭하세요</p>
+        <p className="text-xs text-gray-400 mt-1">여러 파일 동시 선택 가능</p>
       </div>
 
       {/* File list */}
@@ -130,7 +130,7 @@ export default function DocumentUpload({ onDone, onBack }) {
             <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
           </svg>
           <div>
-            <p className="text-sm font-medium text-gray-800">인덱싱 완료</p>
+            <p className="text-sm font-medium text-gray-800">분석 완료</p>
             {result.indexed_files.length > 0 && (
               <p className="text-xs text-gray-500 mt-0.5">{result.indexed_files.join(', ')}</p>
             )}
@@ -147,7 +147,7 @@ export default function DocumentUpload({ onDone, onBack }) {
           disabled={loading}
           className="px-5 py-2 bg-indigo-600 text-white text-sm font-semibold rounded-lg hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
         >
-          {loading ? '인덱싱 중...' : '인덱싱 시작'}
+          {loading ? '분석 중...' : '분석 시작'}
         </button>
         {result && (
           <button

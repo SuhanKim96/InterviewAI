@@ -10,13 +10,39 @@ from services import rag
 _llm = ChatOpenAI(model="gpt-4o-mini", api_key=settings.openai_api_key, temperature=0.7)
 
 _PROMPT = ChatPromptTemplate.from_messages([
-    ("system", "당신은 {company}의 {role} 기술 면접관입니다. 아래 지시를 반드시 따르세요.\n"
-               "- JD 또는 지원자의 실제 경험에 근거한 질문만 생성하세요. 근거 없는 일반 질문 금지.\n"
-               "- 경험 질문은 반드시 지원자의 실제 프로젝트에서 가져오세요.\n"
-               "- 단순 암기 질문(정의 묻기)보다 '왜', '어떻게', 'trade-off'를 묻는 질문을 우선하세요.\n"
-               "- 가능하면 {company}가 실제로 사용하는 제품, 기술 스택, 도메인 맥락을 질문에 반영하세요. "
-               "JD에 드러난 회사의 기술/제품을 활용하되, 확실하지 않은 정보는 지어내지 마세요.\n"
-               "- JSON 외 텍스트 (마크다운 백틱, 설명 문장 등) 출력 금지."),
+    ("system",
+     "당신은 {company}의 {role} 기술 면접관입니다. 아래 지시를 반드시 따르세요.\n\n"
+
+     "## 질문 카테고리 정의 (엄격히 구분할 것)\n\n"
+
+     "[technical] — '이 기술이 무엇인가/어떻게 동작하나'\n"
+     "- 특정 기술·개념의 원리, 동작 방식, 일반 지식을 묻는 질문\n"
+     "- 지원자의 프로젝트와 무관하게 '그 기술 자체'를 아는지 확인\n"
+     "- 예: 'FastAPI의 비동기 처리가 동기 대비 어떤 이점이 있나요?'\n"
+     "- 예: 'JWT 인증에서 토큰 만료를 어떻게 다루나요?'\n"
+     "- [이것이 아님] 특정 프로젝트에서 무엇을 했는지 묻는 것\n\n"
+
+     "[experience] — '당신이 무엇을 했나/어떤 결정을 내렸나/어떤 문제를 풀었나'\n"
+     "- 지원자의 실제 프로젝트 경험에서 출발하는 질문\n"
+     "- 반드시 이력서에서 검색된 프로젝트명을 질문 문장 안에 명시할 것\n"
+     "- 예: 'GlobaLog에서 외부 환율 API 장애 시 어떻게 대응했나요?'\n"
+     "- 예: 'Stock Overflow 개발 당시 모델 서버 통합에서 가장 어려웠던 점은?'\n"
+     "- [이것이 아님] 일반적인 기술 지식을 묻는 것\n\n"
+
+     "[대조 예시 — 같은 주제라도 관점이 다름]\n"
+     "- technical: 'BigDecimal이 부동소수점 오차를 막는 원리는?' (개념)\n"
+     "- experience: 'GlobaLog에서 금융 정밀도 문제를 어떻게 해결했나요?' (경험)\n\n"
+
+     "판별 기준: '이 기술이 뭔가?' → technical / '당신이 뭘 했나?' → experience\n\n"
+
+     "## 추가 규칙\n"
+     "- JD 또는 지원자의 실제 경험에 근거한 질문만 생성. 근거 없는 일반 질문 금지.\n"
+     "- experience 질문은 프로젝트명 없이 생성하지 마세요.\n"
+     "- 단순 암기 질문(정의 묻기)보다 '왜', '어떻게', 'trade-off'를 묻는 질문 우선.\n"
+     "- 가능하면 {company}가 실제로 사용하는 제품·기술 스택·도메인 맥락을 반영하세요. "
+     "JD에 드러난 정보를 활용하되, 확실하지 않은 정보는 지어내지 마세요.\n"
+     "- JSON 외 텍스트(마크다운 백틱, 설명 문장 등) 출력 금지."),
+
     ("user",
      "## 채용공고 (JD)\n{jd_text}\n\n"
      "## 지원자 경험 (이력서/포트폴리오에서 검색된 내용)\n{experience_chunks}\n\n"
@@ -24,9 +50,10 @@ _PROMPT = ChatPromptTemplate.from_messages([
      "- 난이도: {difficulty}\n"
      "- 생성할 유형: {types}\n"
      "- 유형별 질문 수: {count}개\n\n"
+     "category_reason을 먼저 작성한 후 질문을 생성하세요 (분류 근거 명시).\n"
      "아래 JSON 형식만 반환하세요:\n"
-     '{{"technical":[{{"question":"...","intent":"...","related_to":"..."}}],'
-     '"experience":[{{"question":"...","intent":"...","related_to":"..."}}]}}')
+     '{{"technical":[{{"question":"...","intent":"...","related_to":"...","category_reason":"이 기술 개념을 묻고 프로젝트와 무관하므로 technical"}}],'
+     '"experience":[{{"question":"...","intent":"...","related_to":"프로젝트명","category_reason":"GlobaLog에서의 실제 경험을 묻고 있으므로 experience"}}]}}')
 ])
 
 _STRIP_RE = re.compile(r"^```(?:json)?\s*|\s*```$", re.MULTILINE)

@@ -32,6 +32,12 @@ export const submitAnswer = (body) =>
     body: JSON.stringify(body),
   }).then(json)
 
+export const getDocuments = () =>
+  fetch(`${BASE}/documents`).then(json)
+
+export const deleteDocuments = () =>
+  fetch(`${BASE}/documents`, { method: 'DELETE' }).then((r) => r.ok)
+
 export const getSessions = () =>
   fetch(`${BASE}/sessions`).then(json)
 

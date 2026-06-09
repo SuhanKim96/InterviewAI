@@ -2,9 +2,11 @@ import { useState } from 'react'
 import Navbar from './components/Navbar.jsx'
 import LandingPage from './components/LandingPage.jsx'
 import DocumentUpload from './components/DocumentUpload.jsx'
+import DocumentsPage from './components/DocumentsPage.jsx'
 import JDInput from './components/JDInput.jsx'
 import QuestionCard from './components/QuestionCard.jsx'
 import HistoryPage from './components/HistoryPage.jsx'
+import { getDocuments } from './api.js'
 
 export default function App() {
   const [step, setStep] = useState('landing')
@@ -38,11 +40,24 @@ export default function App() {
     restart()
   }
 
+  const handleStart = async () => {
+    try {
+      const data = await getDocuments()
+      if (data.sources.length > 0) {
+        setStep('jd')
+      } else {
+        setStep('upload')
+      }
+    } catch {
+      setStep('upload')
+    }
+  }
+
   return (
     <div className="min-h-screen bg-gray-50">
       <Navbar step={step} onHome={goHome} />
 
-      {step === 'landing' && <LandingPage onStart={() => setStep('upload')} onHistory={() => setStep('history')} />}
+      {step === 'landing' && <LandingPage onStart={handleStart} onHistory={() => setStep('history')} onDocuments={() => setStep('documents')} />}
 
       {step === 'history' && (
         <main className="max-w-4xl mx-auto px-4 py-2">
@@ -50,7 +65,13 @@ export default function App() {
         </main>
       )}
 
-      {step !== 'landing' && step !== 'history' && (
+      {step === 'documents' && (
+        <main className="max-w-3xl mx-auto px-4 py-2">
+          <DocumentsPage onBack={() => setStep('landing')} />
+        </main>
+      )}
+
+      {step !== 'landing' && step !== 'history' && step !== 'documents' && (
         <main className="max-w-3xl mx-auto px-4 py-8">
           {step === 'upload' && (
             <DocumentUpload onDone={() => setStep('jd')} onBack={() => setStep('landing')} />

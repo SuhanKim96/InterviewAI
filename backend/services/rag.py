@@ -30,3 +30,23 @@ def index_documents(text: str, source: str, name: str = "") -> int:
 def search(query: str, k: int = 5) -> list[str]:
     docs = _vectorstore.similarity_search(query, k=k)
     return [doc.page_content for doc in docs]
+
+
+def list_sources() -> list[dict]:
+    result = _vectorstore.get(include=["metadatas"])
+    seen: set[tuple] = set()
+    sources: list[dict] = []
+    for meta in result["metadatas"]:
+        key = (meta.get("source", ""), meta.get("name", ""))
+        if key not in seen:
+            seen.add(key)
+            sources.append({"source": key[0], "name": key[1]})
+    return sources
+
+
+def total_chunks() -> int:
+    return len(_vectorstore.get()["ids"])
+
+
+def clear_documents() -> None:
+    _vectorstore.reset_collection()

@@ -17,6 +17,16 @@ class DocumentResponse(BaseModel):
     github_repos: list[str]
 
 
+class DocumentSource(BaseModel):
+    source: str
+    name: str
+
+
+class DocumentListResponse(BaseModel):
+    sources: list[DocumentSource]
+    total_chunks: int
+
+
 class SessionCreate(BaseModel):
     company: str | None = None
     role: str | None = None

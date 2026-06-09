@@ -5,7 +5,7 @@ from sqlalchemy import text
 
 from db import engine, Base
 from schemas import HealthResponse
-from routes import documents, sessions, questions, answers, history
+from routes import documents, sessions, questions, answers, history, followup, ask
 import models  # noqa: F401 — registers ORM models with Base
 
 
@@ -24,6 +24,8 @@ app.include_router(sessions.router)
 app.include_router(questions.router)
 app.include_router(answers.router)
 app.include_router(history.router)
+app.include_router(followup.router)
+app.include_router(ask.router)
 
 
 @app.get("/health", response_model=HealthResponse)

@@ -33,7 +33,7 @@ export default function JDInput({ onDone, onBack }) {
         ...(data.experience || []).map((q) => ({ ...q, category: 'experience' })),
       ]
       if (flat.length === 0) { setError('질문이 생성되지 않았습니다. 다시 시도해주세요.'); return }
-      onDone(flat)
+      onDone(session_id, flat)
     } catch (e) {
       setError(e.message)
     } finally {

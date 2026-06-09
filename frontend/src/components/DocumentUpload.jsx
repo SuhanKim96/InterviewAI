@@ -8,7 +8,7 @@ function formatBytes(bytes) {
 }
 
 export default function DocumentUpload({ onDone, onBack }) {
-  const [file, setFile] = useState(null)
+  const [files, setFiles] = useState([])
   const [dragging, setDragging] = useState(false)
   const [portfolioText, setPortfolioText] = useState('')
   const [loading, setLoading] = useState(false)
@@ -16,31 +16,34 @@ export default function DocumentUpload({ onDone, onBack }) {
   const [error, setError] = useState('')
   const inputRef = useRef(null)
 
-  const setFileIfPdf = (f) => {
-    if (f && f.type === 'application/pdf') {
-      setFile(f)
-      setError('')
-    } else if (f) {
-      setError('PDF 파일만 업로드 가능합니다.')
-    }
+  const addFiles = (incoming) => {
+    const pdfs = Array.from(incoming).filter(f => f.type === 'application/pdf')
+    if (pdfs.length < incoming.length) setError('PDF 파일만 업로드 가능합니다.')
+    else setError('')
+    setFiles(prev => {
+      const names = new Set(prev.map(f => f.name))
+      return [...prev, ...pdfs.filter(f => !names.has(f.name))]
+    })
   }
+
+  const removeFile = (name) => setFiles(prev => prev.filter(f => f.name !== name))
 
   const handleDrop = (e) => {
     e.preventDefault()
     setDragging(false)
-    setFileIfPdf(e.dataTransfer.files[0])
+    addFiles(e.dataTransfer.files)
   }
 
   const handleSubmit = async () => {
-    if (!file && !portfolioText.trim()) {
-      setError('이력서 PDF 또는 포트폴리오 텍스트 중 하나는 필요합니다.')
+    if (files.length === 0 && !portfolioText.trim()) {
+      setError('PDF 또는 포트폴리오 텍스트 중 하나는 필요합니다.')
       return
     }
     setLoading(true)
     setError('')
     try {
       const fd = new FormData()
-      if (file) fd.append('resume_pdf', file)
+      files.forEach(f => fd.append('pdfs', f))
       if (portfolioText.trim()) fd.append('portfolio_text', portfolioText)
       const data = await uploadDocuments(fd)
       setResult(data)
@@ -62,46 +65,49 @@ export default function DocumentUpload({ onDone, onBack }) {
       <h2 className="text-base font-semibold text-gray-900 mb-1">문서 업로드</h2>
       <p className="text-sm text-gray-500 mb-6">이력서와 포트폴리오를 인덱싱해 맞춤 질문 생성에 활용합니다.</p>
 
-      {/* Drag & Drop Zone */}
+      {/* Drop zone */}
       <div
         onClick={() => inputRef.current?.click()}
         onDragOver={(e) => { e.preventDefault(); setDragging(true) }}
         onDragLeave={() => setDragging(false)}
         onDrop={handleDrop}
-        className={`border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors mb-4
-          ${dragging ? 'border-indigo-400 bg-indigo-50' : file ? 'border-indigo-300 bg-indigo-50' : 'border-gray-200 hover:border-indigo-300 hover:bg-gray-50'}`}
+        className={`border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-colors mb-3
+          ${dragging ? 'border-indigo-400 bg-indigo-50' : 'border-gray-200 hover:border-indigo-300 hover:bg-gray-50'}`}
       >
         <input
           ref={inputRef}
           type="file"
           accept=".pdf"
+          multiple
           className="hidden"
-          onChange={(e) => setFileIfPdf(e.target.files[0])}
+          onChange={(e) => addFiles(e.target.files)}
         />
-        {file ? (
-          <div>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" className="w-8 h-8 mx-auto mb-2 text-indigo-500">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-            </svg>
-            <p className="text-sm font-medium text-gray-800">{file.name}</p>
-            <p className="text-xs text-gray-400 mt-0.5">{formatBytes(file.size)}</p>
-            <button
-              onClick={(e) => { e.stopPropagation(); setFile(null) }}
-              className="mt-2 text-xs text-gray-400 hover:text-red-500 transition-colors"
-            >
-              제거
-            </button>
-          </div>
-        ) : (
-          <div>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" className="w-8 h-8 mx-auto mb-2 text-gray-400">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
-            </svg>
-            <p className="text-sm font-medium text-gray-600">PDF를 여기에 끌어놓거나 클릭하세요</p>
-            <p className="text-xs text-gray-400 mt-1">이력서 PDF (.pdf)</p>
-          </div>
-        )}
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" className="w-7 h-7 mx-auto mb-2 text-gray-400">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+        </svg>
+        <p className="text-sm font-medium text-gray-600">PDF를 끌어놓거나 클릭해서 선택</p>
+        <p className="text-xs text-gray-400 mt-1">이력서, 포트폴리오 등 여러 파일 선택 가능</p>
       </div>
+
+      {/* File list */}
+      {files.length > 0 && (
+        <div className="space-y-1.5 mb-4">
+          {files.map((f) => (
+            <div key={f.name} className="flex items-center gap-2 px-3 py-2 bg-indigo-50 rounded-lg">
+              <svg viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4 text-indigo-500 shrink-0">
+                <path fillRule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clipRule="evenodd" />
+              </svg>
+              <span className="text-sm text-gray-700 flex-1 truncate">{f.name}</span>
+              <span className="text-xs text-gray-400">{formatBytes(f.size)}</span>
+              <button onClick={() => removeFile(f.name)} className="text-gray-300 hover:text-red-400 transition-colors ml-1">
+                <svg viewBox="0 0 16 16" fill="currentColor" className="w-3.5 h-3.5">
+                  <path d="M4.646 4.646a.5.5 0 01.708 0L8 7.293l2.646-2.647a.5.5 0 01.708.708L8.707 8l2.647 2.646a.5.5 0 01-.708.708L8 8.707l-2.646 2.647a.5.5 0 01-.708-.708L7.293 8 4.646 5.354a.5.5 0 010-.708z"/>
+                </svg>
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
 
       <div className="mb-6">
         <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -112,7 +118,7 @@ export default function DocumentUpload({ onDone, onBack }) {
           value={portfolioText}
           onChange={(e) => setPortfolioText(e.target.value)}
           placeholder="GitHub 링크, 프로젝트 설명 등을 붙여넣으세요..."
-          className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+          className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none"
         />
       </div>
 
@@ -125,9 +131,12 @@ export default function DocumentUpload({ onDone, onBack }) {
           </svg>
           <div>
             <p className="text-sm font-medium text-gray-800">인덱싱 완료</p>
-            <p className="text-xs text-gray-500 mt-0.5">청크 {result.indexed_chunks}개 저장됨
-              {result.github_repos.length > 0 && ` · GitHub: ${result.github_repos.join(', ')}`}
-            </p>
+            {result.indexed_files.length > 0 && (
+              <p className="text-xs text-gray-500 mt-0.5">{result.indexed_files.join(', ')}</p>
+            )}
+            {result.github_repos.length > 0 && (
+              <p className="text-xs text-gray-500">GitHub: {result.github_repos.join(', ')}</p>
+            )}
           </div>
         </div>
       )}

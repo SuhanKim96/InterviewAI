@@ -10,23 +10,26 @@ router = APIRouter(prefix="/documents", tags=["documents"])
 
 @router.post("", response_model=DocumentResponse)
 async def index_documents(
-    resume_pdf: Annotated[UploadFile | None, File()] = None,
+    pdfs: Annotated[list[UploadFile], File()] = [],
     portfolio_text: Annotated[str | None, Form()] = None,
 ):
-    if not resume_pdf and not portfolio_text:
-        raise HTTPException(status_code=400, detail="resume_pdf 또는 portfolio_text 중 하나는 필요합니다.")
+    if not pdfs and not portfolio_text:
+        raise HTTPException(status_code=400, detail="PDF 또는 포트폴리오 텍스트 중 하나는 필요합니다.")
 
     total_chunks = 0
     combined_text = ""
+    indexed_files: list[str] = []
 
-    if resume_pdf:
+    for i, pdf in enumerate(pdfs):
         try:
-            file_bytes = await resume_pdf.read()
-            resume_text = pdf_parser.extract_text(file_bytes)
+            file_bytes = await pdf.read()
+            text = pdf_parser.extract_text(file_bytes)
         except ValueError as e:
             raise HTTPException(status_code=422, detail=str(e))
-        combined_text += resume_text + "\n"
-        total_chunks += rag.index_documents(resume_text, source="resume")
+        source = "resume" if i == 0 else "portfolio_pdf"
+        combined_text += text + "\n"
+        total_chunks += rag.index_documents(text, source=source, name=pdf.filename or source)
+        indexed_files.append(pdf.filename or source)
 
     if portfolio_text:
         combined_text += portfolio_text + "\n"
@@ -43,4 +46,4 @@ async def index_documents(
         except RuntimeError:
             pass
 
-    return DocumentResponse(indexed_chunks=total_chunks, github_repos=indexed_repos)
+    return DocumentResponse(indexed_chunks=total_chunks, indexed_files=indexed_files, github_repos=indexed_repos)

@@ -13,6 +13,7 @@ class ErrorResponse(BaseModel):
 
 class DocumentResponse(BaseModel):
     indexed_chunks: int
+    indexed_files: list[str]
     github_repos: list[str]
 
 
@@ -90,3 +91,22 @@ class HistoryResponse(BaseModel):
     answers: list[AnswerSummary]
     score_trend: list[ScoreTrendPoint]
     weak_area: str | None
+
+
+class FollowUpRequest(BaseModel):
+    original_question: str
+    follow_up_question: str
+    answer_text: str
+
+
+class FollowUpResponse(BaseModel):
+    comment: str
+
+
+class AskRequest(BaseModel):
+    session_id: int
+    question: str
+
+
+class AskResponse(BaseModel):
+    answer: str

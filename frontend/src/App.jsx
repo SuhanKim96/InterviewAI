@@ -8,6 +8,7 @@ import HistoryPage from './components/HistoryPage.jsx'
 
 export default function App() {
   const [step, setStep] = useState('landing')
+  const [sessionId, setSessionId] = useState(null)
   const [questions, setQuestions] = useState([])
   const [currentIdx, setCurrentIdx] = useState(0)
   const [feedbacks, setFeedbacks] = useState({})
@@ -58,7 +59,8 @@ export default function App() {
           {step === 'jd' && (
             <JDInput
               onBack={() => setStep('upload')}
-              onDone={(qs) => {
+              onDone={(sid, qs) => {
+                setSessionId(sid)
                 setQuestions(qs)
                 setCurrentIdx(0)
                 setFeedbacks({})
@@ -69,7 +71,9 @@ export default function App() {
 
           {step === 'interview' && questions.length > 0 && (
             <QuestionCard
+              key={questions[currentIdx].id}
               question={questions[currentIdx]}
+              sessionId={sessionId}
               index={currentIdx}
               total={questions.length}
               feedback={feedbacks[questions[currentIdx].id]}

@@ -37,3 +37,17 @@ export const getSessions = () =>
 
 export const getHistory = (sessionId) =>
   fetch(`${BASE}/history?session_id=${sessionId}`).then(json)
+
+export const submitFollowUp = (body) =>
+  fetch(`${BASE}/follow-up`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  }).then(json)
+
+export const askInterviewer = (body) =>
+  fetch(`${BASE}/ask`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  }).then(json)

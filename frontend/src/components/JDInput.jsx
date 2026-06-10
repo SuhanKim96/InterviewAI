@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { createSession, generateQuestions } from '../api.js'
+import { createSession, startSession } from '../api.js'
 
 const DIFFICULTIES = ['신입', '주니어', '시니어']
 const QUESTION_TYPES = [
@@ -27,13 +27,9 @@ export default function JDInput({ onDone, onBack }) {
     setError('')
     try {
       const { session_id } = await createSession({ company, role, jd_text: jdText })
-      const data = await generateQuestions({ session_id, difficulty, types, count })
-      const flat = [
-        ...(data.technical || []).map((q) => ({ ...q, category: 'technical' })),
-        ...(data.experience || []).map((q) => ({ ...q, category: 'experience' })),
-      ]
-      if (flat.length === 0) { setError('질문이 생성되지 않았습니다. 다시 시도해주세요.'); return }
-      onDone(session_id, flat)
+      const { question, total_planned } = await startSession(session_id, { difficulty, types, count })
+      if (!question) { setError('질문이 생성되지 않았습니다. 다시 시도해주세요.'); return }
+      onDone(session_id, question, total_planned)
     } catch (e) {
       setError(e.message)
     } finally {
@@ -133,7 +129,7 @@ export default function JDInput({ onDone, onBack }) {
         disabled={loading}
         className="px-5 py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed"
       >
-        {loading ? '질문 생성 중...' : '질문 생성'}
+        {loading ? '질문 생성 중...' : '면접 시작'}
       </button>
     </div>
   )

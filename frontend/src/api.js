@@ -57,3 +57,25 @@ export const askInterviewer = (body) =>
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
   }).then(json)
+
+// ── Stage A: 세션 턴 기반 API ──────────────────────────────
+
+export const startSession = (sessionId, body) =>
+  fetch(`${BASE}/sessions/${sessionId}/start`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  }).then(json)
+
+export const submitTurn = (sessionId, body) =>
+  fetch(`${BASE}/sessions/${sessionId}/turn`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  }).then(json)
+
+export const finishSession = (sessionId) =>
+  fetch(`${BASE}/sessions/${sessionId}/finish`, { method: 'POST' }).then(json)
+
+export const getReport = (sessionId) =>
+  fetch(`${BASE}/sessions/${sessionId}/report`).then(json)

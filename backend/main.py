@@ -17,6 +17,12 @@ async def lifespan(app: FastAPI):
         await conn.run_sync(Base.metadata.create_all)
         await conn.execute(text("ALTER TABLE answers ADD COLUMN IF NOT EXISTS follow_up TEXT"))
         await conn.execute(text("ALTER TABLE answers ADD COLUMN IF NOT EXISTS rubric_basis TEXT"))
+        await conn.execute(text("ALTER TABLE sessions ADD COLUMN IF NOT EXISTS status VARCHAR(20) DEFAULT 'active'"))
+        await conn.execute(text("ALTER TABLE sessions ADD COLUMN IF NOT EXISTS summary TEXT"))
+        await conn.execute(text("ALTER TABLE sessions ADD COLUMN IF NOT EXISTS difficulty VARCHAR(20)"))
+        await conn.execute(text("ALTER TABLE sessions ADD COLUMN IF NOT EXISTS types_json TEXT"))
+        await conn.execute(text("ALTER TABLE sessions ADD COLUMN IF NOT EXISTS total_planned INTEGER"))
+        await conn.execute(text("ALTER TABLE questions ADD COLUMN IF NOT EXISTS sequence INTEGER"))
     yield
 
 

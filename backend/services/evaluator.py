@@ -23,6 +23,8 @@ _PROMPT = ChatPromptTemplate.from_messages([
      "## 지원자 답변\n{answer_text}\n\n"
      "## 관련 이력서/경험 (참고용)\n{experience_chunks}\n\n"
      "## 평가 루브릭 (이 기준으로 채점할 것)\n{rubric_chunks}\n\n"
+     "## 이전 대화 맥락 (참고용)\n{conversation_history}\n\n"
+     "이전 답변과 일관성이 있는지, 이전에 언급한 내용을 더 깊게 탐구할 기회가 있는지 평가에 반영하세요.\n\n"
      "아래 JSON 형식만 반환하세요:\n"
      '{{"score_clarity":1-5,"score_specific":1-5,"score_technical":1-5,'
      '"strengths":"...","weaknesses":"...","improved_answer":"...",'
@@ -32,7 +34,7 @@ _PROMPT = ChatPromptTemplate.from_messages([
 _STRIP_RE = re.compile(r"^```(?:json)?\s*|\s*```$", re.MULTILINE)
 
 
-async def evaluate(question: str, answer_text: str, category: str) -> dict:
+async def evaluate(question: str, answer_text: str, category: str, conversation_history: str = "") -> dict:
     experience_chunks = rag.search(question, k=5)
     rubric_chunks = rubrics.search_rubrics(question, category, k=3)
 
@@ -42,6 +44,7 @@ async def evaluate(question: str, answer_text: str, category: str) -> dict:
         "answer_text": answer_text,
         "experience_chunks": "\n---\n".join(experience_chunks) if experience_chunks else "검색된 경험 없음",
         "rubric_chunks": "\n---\n".join(rubric_chunks) if rubric_chunks else "루브릭 없음 (seed_rubrics.py 실행 필요)",
+        "conversation_history": conversation_history or "이전 답변 없음",
     })
 
     raw = _STRIP_RE.sub("", response.content).strip()

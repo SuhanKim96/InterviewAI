@@ -42,6 +42,7 @@ class SessionListItem(BaseModel):
     company: str | None
     role: str | None
     created_at: datetime
+    status: str = "active"
 
 
 class QuestionItem(BaseModel):
@@ -120,3 +121,46 @@ class AskRequest(BaseModel):
 
 class AskResponse(BaseModel):
     answer: str
+
+
+# ── Stage A: 세션 턴 기반 면접 ────────────────────────────────
+
+class SessionStartRequest(BaseModel):
+    difficulty: str = "주니어"
+    types: list[str] = ["technical", "experience"]
+    count: int = 3
+
+
+class TurnQuestion(BaseModel):
+    id: int
+    sequence: int
+    category: str | None
+    question: str
+    intent: str | None
+    related_to: str | None
+
+
+class StartResponse(BaseModel):
+    question: TurnQuestion
+    total_planned: int
+
+
+class TurnRequest(BaseModel):
+    answer_text: str
+
+
+class TurnResponse(BaseModel):
+    evaluation: AnswerResponse
+    next_question: TurnQuestion | None
+    session_complete: bool
+
+
+class ReportResponse(BaseModel):
+    session_id: int
+    company: str | None
+    role: str | None
+    status: str
+    summary: str | None
+    answers: list[AnswerSummary]
+    score_trend: list[ScoreTrendPoint]
+    weak_area: str | None

@@ -13,6 +13,11 @@ class Session(Base):
     role: Mapped[str | None] = mapped_column(String(255))
     jd_text: Mapped[str] = mapped_column(Text, nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+    status: Mapped[str] = mapped_column(String(20), default="active")
+    summary: Mapped[str | None] = mapped_column(Text)
+    difficulty: Mapped[str | None] = mapped_column(String(20))
+    types_json: Mapped[str | None] = mapped_column(Text)
+    total_planned: Mapped[int | None] = mapped_column(Integer)
 
     questions: Mapped[list["Question"]] = relationship(back_populates="session", cascade="all, delete")
 
@@ -26,6 +31,7 @@ class Question(Base):
     question: Mapped[str] = mapped_column(Text, nullable=False)
     intent: Mapped[str | None] = mapped_column(Text)
     related_to: Mapped[str | None] = mapped_column(Text)
+    sequence: Mapped[int | None] = mapped_column(Integer)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
 
     session: Mapped["Session"] = relationship(back_populates="questions")

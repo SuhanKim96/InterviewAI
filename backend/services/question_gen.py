@@ -35,6 +35,10 @@ _PROMPT = ChatPromptTemplate.from_messages([
 
      "판별 기준: '이 기술이 뭔가?' → technical / '당신이 뭘 했나?' → experience\n\n"
 
+     "## 대화 맥락 기반 질문 생성\n"
+     "이전 답변이 있다면, 이미 다룬 주제를 반복하지 말고 드러난 강점을 더 파고들거나 "
+     "약점을 보완할 수 있는 질문을 우선하세요.\n\n"
+
      "## 추가 규칙\n"
      "- JD 또는 지원자의 실제 경험에 근거한 질문만 생성. 근거 없는 일반 질문 금지.\n"
      "- experience 질문은 프로젝트명 없이 생성하지 마세요.\n"
@@ -50,6 +54,7 @@ _PROMPT = ChatPromptTemplate.from_messages([
      "- 난이도: {difficulty}\n"
      "- 생성할 유형: {types}\n"
      "- 유형별 질문 수: {count}개\n\n"
+     "## 이전 대화 맥락\n{conversation_history}\n\n"
      "category_reason을 먼저 작성한 후 질문을 생성하세요 (분류 근거 명시).\n"
      "아래 JSON 형식만 반환하세요:\n"
      '{{"technical":[{{"question":"...","intent":"...","related_to":"...","category_reason":"이 기술 개념을 묻고 프로젝트와 무관하므로 technical"}}],'
@@ -66,6 +71,7 @@ async def generate(
     difficulty: str,
     types: list[str],
     count: int,
+    conversation_history: str = "",
 ) -> dict[str, list[dict]]:
     chunks = rag.search(jd_text, k=8)
     experience_chunks = "\n---\n".join(chunks) if chunks else "검색된 경험 없음"
@@ -79,6 +85,7 @@ async def generate(
         "difficulty": difficulty,
         "types": ", ".join(types),
         "count": count,
+        "conversation_history": conversation_history or "이전 답변 없음",
     })
 
     raw = _STRIP_RE.sub("", response.content).strip()

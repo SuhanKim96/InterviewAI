@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
-import { submitAnswer, askInterviewer } from '../api.js'
+import { submitTurn, askInterviewer } from '../api.js'
 import AnswerFeedback from './AnswerFeedback.jsx'
 
 const BADGE = {
@@ -8,7 +8,7 @@ const BADGE = {
 }
 const BADGE_LABEL = { technical: '기술', experience: '경험' }
 
-export default function QuestionCard({ question, sessionId, index, total, feedback, onFeedback, onNext }) {
+export default function QuestionCard({ question, sessionId, index, total, onTurnComplete }) {
   const [answerText, setAnswerText] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -17,6 +17,8 @@ export default function QuestionCard({ question, sessionId, index, total, feedba
   const [askInput, setAskInput] = useState('')
   const [askLoading, setAskLoading] = useState(false)
   const [chat, setChat] = useState([]) // [{q, a}]
+  const [localFeedback, setLocalFeedback] = useState(null)
+  const [pendingTurn, setPendingTurn] = useState(null)
   const textareaRef = useRef(null)
 
   useEffect(() => {
@@ -28,8 +30,9 @@ export default function QuestionCard({ question, sessionId, index, total, feedba
     setLoading(true)
     setError('')
     try {
-      const result = await submitAnswer({ question_id: question.id, answer_text: answerText })
-      onFeedback(result)
+      const turnResponse = await submitTurn(sessionId, { answer_text: answerText })
+      setLocalFeedback(turnResponse.evaluation)
+      setPendingTurn(turnResponse)
     } catch (e) {
       setError(e.message)
     } finally {
@@ -88,7 +91,7 @@ export default function QuestionCard({ question, sessionId, index, total, feedba
         </div>
       )}
 
-      {!feedback ? (
+      {!localFeedback ? (
         <>
           <div className="relative mb-3">
             <textarea
@@ -114,10 +117,10 @@ export default function QuestionCard({ question, sessionId, index, total, feedba
         </>
       ) : (
         <AnswerFeedback
-          feedback={feedback}
+          feedback={localFeedback}
           question={question.question}
-          onNext={onNext}
-          isLast={index === total - 1}
+          onNext={() => onTurnComplete(pendingTurn)}
+          isLast={pendingTurn?.session_complete ?? false}
         />
       )}
 

@@ -13,6 +13,7 @@ export default function HistoryPage({ onBack }) {
   const [selectedId, setSelectedId] = useState(null)
   const [history, setHistory] = useState(null)
   const [loading, setLoading] = useState(false)
+  const [expandedId, setExpandedId] = useState(null)
 
   useEffect(() => {
     getSessions().then(setSessions).catch(console.error)
@@ -21,6 +22,7 @@ export default function HistoryPage({ onBack }) {
   const handleSelect = async (id) => {
     if (selectedId === id) return
     setSelectedId(id)
+    setExpandedId(null)
     setLoading(true)
     setHistory(null)
     try {
@@ -65,10 +67,15 @@ export default function HistoryPage({ onBack }) {
                   : 'border-gray-200 bg-white hover:border-gray-300'
               }`}
             >
-              <p className="text-sm font-medium text-gray-800 truncate">
-                {s.company || '회사명 없음'}
-                {s.role && <span className="text-gray-400 font-normal"> · {s.role}</span>}
-              </p>
+              <div className="flex items-center justify-between gap-2">
+                <p className="text-sm font-medium text-gray-800 truncate">
+                  {s.company || '회사명 없음'}
+                  {s.role && <span className="text-gray-400 font-normal"> · {s.role}</span>}
+                </p>
+                {s.status === 'completed' && (
+                  <span className="text-xs text-indigo-400 font-medium shrink-0">완료</span>
+                )}
+              </div>
               <p className="text-xs text-gray-400 mt-0.5">
                 {new Date(s.created_at).toLocaleDateString('ko-KR')}
               </p>
@@ -103,6 +110,13 @@ export default function HistoryPage({ onBack }) {
                 </div>
               )}
 
+              {history.summary && (
+                <div className="bg-indigo-50 rounded-xl border border-indigo-100 p-5">
+                  <p className="text-xs font-semibold text-indigo-500 uppercase tracking-wide mb-2">종합 피드백</p>
+                  <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap">{history.summary}</p>
+                </div>
+              )}
+
               <div className="bg-white rounded-xl border border-gray-200 p-5">
                 <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-4">점수 추이</p>
                 <GrowthChart data={history.score_trend} />
@@ -116,15 +130,27 @@ export default function HistoryPage({ onBack }) {
                   <span className="col-span-3 text-right">명·구·기</span>
                 </div>
                 {history.answers.map((a, i) => (
-                  <div key={a.id} className="px-4 py-3 grid grid-cols-12 items-center gap-2">
-                    <span className="col-span-1 text-xs text-gray-400">{i + 1}</span>
-                    <span className={`col-span-1 text-xs px-1.5 py-0.5 rounded font-medium ${a.category === 'technical' ? 'bg-indigo-50 text-indigo-600' : 'bg-gray-100 text-gray-600'}`}>
-                      {a.category === 'technical' ? '기술' : '경험'}
-                    </span>
-                    <p className="col-span-7 text-sm text-gray-700 truncate">{a.question}</p>
-                    <span className="col-span-3 text-xs text-gray-400 text-right tabular-nums">
-                      {a.score_clarity ?? '-'} · {a.score_specific ?? '-'} · {a.score_technical ?? '-'}
-                    </span>
+                  <div key={a.id}>
+                    <button
+                      onClick={() => setExpandedId(prev => prev === a.id ? null : a.id)}
+                      className="w-full px-4 py-3 grid grid-cols-12 items-center gap-2 hover:bg-gray-50 transition-colors text-left"
+                    >
+                      <span className="col-span-1 text-xs text-gray-400">{i + 1}</span>
+                      <span className={`col-span-1 text-xs px-1.5 py-0.5 rounded font-medium ${a.category === 'technical' ? 'bg-indigo-50 text-indigo-600' : 'bg-gray-100 text-gray-600'}`}>
+                        {a.category === 'technical' ? '기술' : '경험'}
+                      </span>
+                      <p className="col-span-7 text-sm text-gray-700 truncate">{a.question}</p>
+                      <span className="col-span-3 text-xs text-gray-400 text-right tabular-nums">
+                        {a.score_clarity ?? '-'} · {a.score_specific ?? '-'} · {a.score_technical ?? '-'}
+                      </span>
+                    </button>
+                    {expandedId === a.id && a.answer_text && (
+                      <div className="px-4 pb-3">
+                        <p className="text-xs text-gray-600 leading-relaxed bg-gray-50 rounded-lg px-3 py-2.5 whitespace-pre-wrap border border-gray-100">
+                          {a.answer_text}
+                        </p>
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>

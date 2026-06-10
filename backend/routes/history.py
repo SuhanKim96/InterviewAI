@@ -31,6 +31,7 @@ async def get_history(session_id: int, db: AsyncSession = Depends(get_db)):
             id=answer.id,
             question=question.question,
             category=question.category,
+            answer_text=answer.answer_text,
             score_clarity=answer.score_clarity,
             score_specific=answer.score_specific,
             score_technical=answer.score_technical,
@@ -53,4 +54,11 @@ async def get_history(session_id: int, db: AsyncSession = Depends(get_db)):
         if avgs:
             weak_area = min(avgs, key=lambda k: avgs[k])
 
-    return HistoryResponse(answers=answers, score_trend=score_trend, weak_area=weak_area)
+    return HistoryResponse(
+        answers=answers,
+        score_trend=score_trend,
+        weak_area=weak_area,
+        summary=session.summary,
+        company=session.company,
+        role=session.role,
+    )

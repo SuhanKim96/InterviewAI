@@ -85,6 +85,7 @@ class AnswerSummary(BaseModel):
     id: int
     question: str
     category: str | None
+    answer_text: str | None = None
     score_clarity: int | None
     score_specific: int | None
     score_technical: int | None
@@ -102,6 +103,9 @@ class HistoryResponse(BaseModel):
     answers: list[AnswerSummary]
     score_trend: list[ScoreTrendPoint]
     weak_area: str | None
+    summary: str | None = None
+    company: str | None = None
+    role: str | None = None
 
 
 class FollowUpRequest(BaseModel):

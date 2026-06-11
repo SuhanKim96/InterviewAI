@@ -35,6 +35,12 @@ _PROMPT = ChatPromptTemplate.from_messages([
 
      "판별 기준: '이 기술이 뭔가?' → technical / '당신이 뭘 했나?' → experience\n\n"
 
+     "[culture] — '이 조직/팀에서 어떻게 일하나/무엇을 중요시하나/왜 지원했나'\n"
+     "- 가치관, 협업 방식, 갈등 해결, 동기, 성장 의지를 묻는 질문\n"
+     "- JD에 언급된 팀 문화/가치관 키워드를 반영할 것\n"
+     "- 예: '팀 내 의견 충돌 상황에서 어떻게 해결했나요?'\n"
+     "- [이것이 아님] 기술 개념이나 프로젝트 세부 사항을 묻는 것\n\n"
+
      "## 대화 맥락 기반 질문 생성\n"
      "이전 답변이 있다면, 이미 다룬 주제를 반복하지 말고 드러난 강점을 더 파고들거나 "
      "약점을 보완할 수 있는 질문을 우선하세요.\n\n"
@@ -94,7 +100,7 @@ async def generate(
     except json.JSONDecodeError as e:
         raise ValueError(f"LLM JSON 파싱 실패: {e}\n원본: {raw[:200]}")
 
-    for key in ("technical", "experience"):
+    for key in ("technical", "experience", "culture"):
         if key not in result:
             result[key] = []
 

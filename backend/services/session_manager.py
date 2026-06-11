@@ -83,6 +83,7 @@ async def count_answered_turns(session_id: int, db: AsyncSession) -> int:
         .join(Question, Answer.question_id == Question.id)
         .where(Question.session_id == session_id)
         .where(Question.sequence.is_not(None))
+        .where(Question.category != "follow_up")
     )
     return result.scalar() or 0
 

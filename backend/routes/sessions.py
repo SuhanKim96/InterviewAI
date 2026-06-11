@@ -12,7 +12,7 @@ from schemas import (
     TurnRequest, TurnResponse, AnswerResponse,
     ReportResponse, AnswerSummary, ScoreTrendPoint,
 )
-from services import evaluator, question_gen, session_manager
+from services import session_manager, interview_graph
 
 router = APIRouter(prefix="/sessions", tags=["sessions"])
 
@@ -105,13 +105,13 @@ async def start_session(session_id: int, body: SessionStartRequest, db: AsyncSes
 
 @router.post("/{session_id}/turn", response_model=TurnResponse)
 async def submit_turn(session_id: int, body: TurnRequest, db: AsyncSession = Depends(get_db)):
+    # ── DB 로드 ──────────────────────────────────────────────────────────────
     session = await db.get(Session, session_id)
     if not session:
         raise HTTPException(status_code=404, detail="세션을 찾을 수 없습니다.")
     if session.status == "completed":
         raise HTTPException(status_code=409, detail="이미 완료된 세션입니다.")
 
-    # 가장 최근 sequence 질문 조회
     result = await db.execute(
         select(Question)
         .where(Question.session_id == session_id)
@@ -123,24 +123,19 @@ async def submit_turn(session_id: int, body: TurnRequest, db: AsyncSession = Dep
     if not current_q:
         raise HTTPException(status_code=409, detail="먼저 /start로 세션을 시작하세요.")
 
-    existing_answer = await db.execute(
-        select(Answer).where(Answer.question_id == current_q.id).limit(1)
-    )
-    if existing_answer.scalar_one_or_none():
+    if (await db.execute(select(Answer).where(Answer.question_id == current_q.id).limit(1))).scalar_one_or_none():
         raise HTTPException(status_code=409, detail="이미 답변된 질문입니다.")
 
-    # 이전 대화 맥락 빌드 (현재 질문 답변 전)
-    history_list = await session_manager.build_conversation_history(session_id, db)
-    history_str = session_manager.format_history_for_prompt(history_list)
+    # ── 그래프 실행 ───────────────────────────────────────────────────────────
+    try:
+        eval_result, next_q_data, session_complete = await interview_graph.run_turn(
+            session=session, current_q=current_q,
+            answer_text=body.answer_text, db=db,
+        )
+    except Exception as e:
+        raise HTTPException(status_code=502, detail=f"그래프 실행 오류: {e}")
 
-    # 평가
-    eval_result = await evaluator.evaluate(
-        question=current_q.question,
-        answer_text=body.answer_text,
-        category=current_q.category or "technical",
-        conversation_history=history_str,
-    )
-
+    # ── DB 저장 ──────────────────────────────────────────────────────────────
     answer = Answer(
         question_id=current_q.id,
         answer_text=body.answer_text,
@@ -169,49 +164,17 @@ async def submit_turn(session_id: int, body: TurnRequest, db: AsyncSession = Dep
         rubric_basis=answer.rubric_basis,
     )
 
-    answered_count = await session_manager.count_answered_turns(session_id, db)
-    total_planned = session.total_planned or 0
-
-    if answered_count >= total_planned:
+    if session_complete or not next_q_data:
         await db.commit()
         return TurnResponse(evaluation=evaluation_response, next_question=None, session_complete=True)
 
-    # 다음 질문 생성
-    types = json.loads(session.types_json or '["technical","experience"]')
-    next_category = types[answered_count % len(types)]
-
-    updated_history = await session_manager.build_conversation_history(session_id, db)
-    updated_history_str = session_manager.format_history_for_prompt(updated_history)
     next_seq = await session_manager.get_next_sequence(session_id, db)
-
-    next_result = await question_gen.generate(
-        jd_text=session.jd_text,
-        company=session.company or "",
-        role=session.role or "",
-        difficulty=session.difficulty or "주니어",
-        types=[next_category],
-        count=1,
-        conversation_history=updated_history_str,
-    )
-
-    nq_data = (next_result.get(next_category) or [])
-    if not nq_data:
-        for v in next_result.values():
-            if v:
-                nq_data = v
-                break
-
-    if not nq_data:
-        await db.commit()
-        return TurnResponse(evaluation=evaluation_response, next_question=None, session_complete=True)
-
-    nqd = nq_data[0]
     next_question = Question(
         session_id=session_id,
-        category=next_category,
-        question=nqd["question"],
-        intent=nqd.get("intent"),
-        related_to=nqd.get("related_to"),
+        category=next_q_data["category"],
+        question=next_q_data["question"],
+        intent=next_q_data.get("intent"),
+        related_to=next_q_data.get("related_to"),
         sequence=next_seq,
     )
     db.add(next_question)

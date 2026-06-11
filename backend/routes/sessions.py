@@ -12,7 +12,7 @@ from schemas import (
     TurnRequest, TurnResponse, AnswerResponse,
     ReportResponse, AnswerSummary, ScoreTrendPoint,
 )
-from services import session_manager, interview_graph
+from services import session_manager, interview_graph, question_gen
 
 router = APIRouter(prefix="/sessions", tags=["sessions"])
 

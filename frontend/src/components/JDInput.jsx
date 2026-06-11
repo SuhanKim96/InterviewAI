@@ -5,6 +5,7 @@ const DIFFICULTIES = ['신입', '주니어', '시니어']
 const QUESTION_TYPES = [
   { value: 'technical', label: '기술' },
   { value: 'experience', label: '경험' },
+  { value: 'culture', label: '컬처핏' },
 ]
 
 export default function JDInput({ onDone, onBack }) {

@@ -3,10 +3,12 @@ import { submitTurn, askInterviewer } from '../api.js'
 import AnswerFeedback from './AnswerFeedback.jsx'
 
 const BADGE = {
-  technical: 'bg-indigo-100 text-indigo-700',
+  technical:  'bg-indigo-100 text-indigo-700',
   experience: 'bg-gray-100 text-gray-600',
+  culture:    'bg-emerald-100 text-emerald-700',
+  follow_up:  'bg-amber-100 text-amber-700',
 }
-const BADGE_LABEL = { technical: '기술', experience: '경험' }
+const BADGE_LABEL = { technical: '기술', experience: '경험', culture: '컬처핏', follow_up: '꼬리질문' }
 
 export default function QuestionCard({ question, sessionId, index, total, onTurnComplete }) {
   const [answerText, setAnswerText] = useState('')
@@ -75,6 +77,9 @@ export default function QuestionCard({ question, sessionId, index, total, onTurn
         </div>
       </div>
 
+      {question.category === 'follow_up' && (
+        <p className="text-xs text-amber-600 mb-2">↳ 이전 답변 후속 질문</p>
+      )}
       <p className="text-gray-900 font-medium text-base leading-relaxed mb-4">{question.question}</p>
 
       {(question.intent || question.related_to) && (

@@ -187,8 +187,15 @@ function ReportPage({ report, onRestart }) {
         {answers.map((a, i) => (
           <div key={a.id} className="px-4 py-3 flex items-center gap-3">
             <span className="text-xs text-gray-400 w-5 shrink-0">{i + 1}</span>
-            <span className={`text-xs px-2 py-0.5 rounded font-medium shrink-0 ${a.category === 'technical' ? 'bg-indigo-50 text-indigo-600' : 'bg-gray-100 text-gray-600'}`}>
-              {a.category === 'technical' ? '기술' : '경험'}
+            <span className={`text-xs px-2 py-0.5 rounded font-medium shrink-0 ${
+              a.category === 'technical' ? 'bg-indigo-50 text-indigo-600' :
+              a.category === 'culture'   ? 'bg-emerald-50 text-emerald-600' :
+              a.category === 'follow_up' ? 'bg-amber-50 text-amber-600' :
+                                           'bg-gray-100 text-gray-600'
+            }`}>
+              {a.category === 'technical' ? '기술' :
+               a.category === 'culture'   ? '컬처핏' :
+               a.category === 'follow_up' ? '꼬리' : '경험'}
             </span>
             <p className="text-sm text-gray-700 flex-1 truncate">{a.question}</p>
             <span className="text-xs text-gray-400 shrink-0 tabular-nums">

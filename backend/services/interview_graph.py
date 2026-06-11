@@ -1,0 +1,288 @@
+import json
+import re
+from typing import TypedDict
+
+from langchain_core.prompts import ChatPromptTemplate
+from langchain_openai import ChatOpenAI
+from langgraph.graph import StateGraph, END
+
+from config import settings
+
+_STRIP_RE = re.compile(r"^```(?:json)?\s*|\s*```$", re.MULTILINE)
+
+# 모듈 레벨 LLM — 테스트에서 교체 가능 (replace with RunnableLambda mock)
+_orchestrator_llm = None
+_followup_llm = None
+
+
+def _get_orchestrator_llm():
+    global _orchestrator_llm
+    if _orchestrator_llm is None:
+        _orchestrator_llm = ChatOpenAI(model="gpt-4o-mini", api_key=settings.openai_api_key, temperature=0.1)
+    return _orchestrator_llm
+
+
+def _get_followup_llm():
+    global _followup_llm
+    if _followup_llm is None:
+        _followup_llm = ChatOpenAI(model="gpt-4o-mini", api_key=settings.openai_api_key, temperature=0.6)
+    return _followup_llm
+
+
+# ── State ─────────────────────────────────────────────────────────────────────
+
+class InterviewState(TypedDict):
+    # 입력: endpoint가 그래프 호출 전 채움
+    session_id: int
+    jd_text: str
+    company: str
+    role: str
+    difficulty: str
+    types: list[str]
+    total_planned: int
+    main_answered_count: int    # follow_up 제외 카운트 (현재 답변 저장 전)
+    conversation_history: str
+    current_question: str
+    current_category: str       # "technical"|"experience"|"culture"|"follow_up"
+    answer_text: str
+
+    # 노드 출력
+    eval_result: dict
+    orchestrator_action: str    # "next_technical"|"next_experience"|"next_culture"|"ask_followup"|"end_session"
+    next_question_data: dict | None
+
+
+# ── Prompts ───────────────────────────────────────────────────────────────────
+
+_ORCHESTRATOR_PROMPT = ChatPromptTemplate.from_messages([
+    ("system",
+     "당신은 기술 면접 오케스트레이터입니다. 평가 결과와 맥락을 보고 다음 행동을 JSON으로만 반환하세요.\n\n"
+     "## 가능한 행동\n"
+     "- next_technical : 기술 개념/원리 질문 ('이 기술이 뭔가?')\n"
+     "- next_experience: 지원자 프로젝트 경험 질문 ('당신이 뭘 했나?')\n"
+     "- next_culture   : 가치관/협업/동기 질문 (types에 culture 포함 시만)\n"
+     "- ask_followup   : 약점 파고드는 꼬리질문 (직전 질문이 follow_up이면 선택 불가)\n"
+     "- end_session    : 면접 종료\n\n"
+     "## 선택 기준\n"
+     "1. 평균 점수(clarity+specific+technical)가 9점 미만(3점 평균 미만)이고 직전이 follow_up이 아니면 → ask_followup\n"
+     "2. 남은 예산이 0이면 → end_session\n"
+     "3. types에 culture가 없으면 → next_culture 선택 불가\n"
+     "4. 직전이 follow_up이면 → ask_followup 선택 불가\n\n"
+     '반환 형식: {{"action": "..."}} — 다른 텍스트 절대 금지'),
+    ("user",
+     "방금 질문 카테고리: {current_category}\n"
+     "방금 질문: {current_question}\n\n"
+     "평가: 명확성 {score_clarity}/5, 구체성 {score_specific}/5, 기술 {score_technical}/5\n"
+     "강점: {strengths}\n"
+     "약점: {weaknesses}\n\n"
+     "허용 유형: {types}\n"
+     "직전이 꼬리질문이었는가: {was_followup}\n"
+     "남은 주요 질문 예산: {remaining}\n\n"
+     "대화 맥락:\n{conversation_history}"),
+])
+
+_FOLLOWUP_PROMPT = ChatPromptTemplate.from_messages([
+    ("system",
+     "당신은 기술 면접관입니다. 지원자 답변의 약점을 정확히 파고드는 꼬리질문 1개를 생성하세요.\n"
+     "- 이미 답한 내용 반복 금지\n"
+     "- '왜', '어떻게', '구체적으로' 중심의 심층 질문\n"
+     "- JSON 외 텍스트 절대 금지"),
+    ("user",
+     "원래 질문: {current_question}\n"
+     "지원자 답변: {answer_text}\n"
+     "식별된 약점: {weaknesses}\n"
+     "대화 맥락: {conversation_history}\n\n"
+     '{{"question":"꼬리질문 텍스트","intent":"이 꼬리질문의 목적"}}'),
+
+])
+
+
+# ── Helpers ───────────────────────────────────────────────────────────────────
+
+def _parse_action(raw: str, types: list[str], answered_count: int) -> str:
+    valid = {"next_technical", "next_experience", "next_culture", "ask_followup", "end_session"}
+    try:
+        data = json.loads(_STRIP_RE.sub("", raw).strip())
+        action = data.get("action", "")
+        if action in valid:
+            return action
+    except Exception:
+        pass
+    # 파싱 실패 시 round-robin 폴백
+    cat = types[answered_count % len(types)]
+    return f"next_{cat}"
+
+
+# ── Node Functions ────────────────────────────────────────────────────────────
+
+async def evaluator_node(state: InterviewState) -> dict:
+    from services import evaluator
+    result = await evaluator.evaluate(
+        question=state["current_question"],
+        answer_text=state["answer_text"],
+        category=state["current_category"],
+        conversation_history=state["conversation_history"],
+    )
+    return {"eval_result": result}
+
+
+async def orchestrator_node(state: InterviewState) -> dict:
+    is_followup = state["current_category"] == "follow_up"
+    next_main = state["main_answered_count"] + (0 if is_followup else 1)
+
+    # 하드 리밋: 예산 소진 시 강제 종료
+    if next_main >= state["total_planned"]:
+        return {"orchestrator_action": "end_session"}
+
+    ev = state["eval_result"]
+    chain = _ORCHESTRATOR_PROMPT | _get_orchestrator_llm()
+    resp = await chain.ainvoke({
+        "current_category":    state["current_category"],
+        "current_question":    state["current_question"],
+        "score_clarity":       ev.get("score_clarity", 0),
+        "score_specific":      ev.get("score_specific", 0),
+        "score_technical":     ev.get("score_technical", 0),
+        "strengths":           ev.get("strengths", ""),
+        "weaknesses":          ev.get("weaknesses", ""),
+        "types":               ", ".join(state["types"]),
+        "was_followup":        "예" if is_followup else "아니오",
+        "remaining":           state["total_planned"] - next_main,
+        "conversation_history": state["conversation_history"],
+    })
+    action = _parse_action(resp.content, state["types"], state["main_answered_count"])
+
+    # 안전장치: culture가 types에 없으면 교체
+    if action == "next_culture" and "culture" not in state["types"]:
+        cat = state["types"][state["main_answered_count"] % len(state["types"])]
+        action = f"next_{cat}"
+
+    # 안전장치: 연속 꼬리질문 방지
+    if action == "ask_followup" and is_followup:
+        cat = state["types"][state["main_answered_count"] % len(state["types"])]
+        action = f"next_{cat}"
+
+    return {"orchestrator_action": action}
+
+
+async def _interviewer_node(state: InterviewState, category: str) -> dict:
+    from services import question_gen
+    result = await question_gen.generate(
+        jd_text=state["jd_text"],
+        company=state["company"],
+        role=state["role"],
+        difficulty=state["difficulty"],
+        types=[category],
+        count=1,
+        conversation_history=state["conversation_history"],
+    )
+    items = result.get(category) or next((v for v in result.values() if v), [])
+    q = items[0] if items else {
+        "question": f"다음 {category} 질문을 준비해주세요.",
+        "intent": None,
+        "related_to": None,
+    }
+    return {"next_question_data": {**q, "category": category}}
+
+
+async def technical_node(state: InterviewState) -> dict:
+    return await _interviewer_node(state, "technical")
+
+
+async def experience_node(state: InterviewState) -> dict:
+    return await _interviewer_node(state, "experience")
+
+
+async def culture_node(state: InterviewState) -> dict:
+    return await _interviewer_node(state, "culture")
+
+
+async def followup_node(state: InterviewState) -> dict:
+    chain = _FOLLOWUP_PROMPT | _get_followup_llm()
+    resp = await chain.ainvoke({
+        "current_question":    state["current_question"],
+        "answer_text":         state["answer_text"],
+        "weaknesses":          state["eval_result"].get("weaknesses", ""),
+        "conversation_history": state["conversation_history"],
+    })
+    raw = _STRIP_RE.sub("", resp.content).strip()
+    try:
+        data = json.loads(raw)
+    except json.JSONDecodeError:
+        data = {"question": "방금 답변에서 가장 어려웠던 부분을 더 구체적으로 설명해주실 수 있나요?", "intent": "구체성 향상"}
+    return {"next_question_data": {
+        "question":   data.get("question", ""),
+        "intent":     data.get("intent", ""),
+        "related_to": state["current_question"][:80],
+        "category":   "follow_up",
+    }}
+
+
+# ── Graph Assembly ────────────────────────────────────────────────────────────
+
+def build_interview_graph():
+    builder = StateGraph(InterviewState)
+
+    builder.add_node("evaluator",    evaluator_node)
+    builder.add_node("orchestrator", orchestrator_node)
+    builder.add_node("technical",    technical_node)
+    builder.add_node("experience",   experience_node)
+    builder.add_node("culture",      culture_node)
+    builder.add_node("followup",     followup_node)
+
+    builder.set_entry_point("evaluator")
+    builder.add_edge("evaluator", "orchestrator")
+    builder.add_conditional_edges(
+        "orchestrator",
+        lambda s: s.get("orchestrator_action", "end_session"),
+        {
+            "next_technical":  "technical",
+            "next_experience": "experience",
+            "next_culture":    "culture",
+            "ask_followup":    "followup",
+            "end_session":     END,
+        },
+    )
+    for node in ("technical", "experience", "culture", "followup"):
+        builder.add_edge(node, END)
+
+    return builder.compile()
+
+
+_graph = build_interview_graph()
+
+
+# ── Public Entry Point ────────────────────────────────────────────────────────
+
+async def run_turn(session, current_q, answer_text: str, db) -> tuple[dict, dict | None, bool]:
+    """
+    sessions.py /turn 엔드포인트에서 호출.
+    반환: (eval_result, next_question_data | None, session_complete)
+    """
+    from services import session_manager
+
+    history_list = await session_manager.build_conversation_history(session.id, db)
+    history_str  = session_manager.format_history_for_prompt(history_list)
+    main_count   = await session_manager.count_answered_turns(session.id, db)
+    types        = json.loads(session.types_json or '["technical","experience"]')
+
+    state = InterviewState(
+        session_id=session.id,
+        jd_text=session.jd_text,
+        company=session.company or "",
+        role=session.role or "",
+        difficulty=session.difficulty or "주니어",
+        types=types,
+        total_planned=session.total_planned or 0,
+        main_answered_count=main_count,
+        conversation_history=history_str,
+        current_question=current_q.question,
+        current_category=current_q.category or "technical",
+        answer_text=answer_text,
+        eval_result={},
+        orchestrator_action="",
+        next_question_data=None,
+    )
+
+    output = await _graph.ainvoke(state)
+    session_complete = output.get("orchestrator_action") == "end_session"
+    return output.get("eval_result", {}), output.get("next_question_data"), session_complete

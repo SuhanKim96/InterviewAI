@@ -2,11 +2,6 @@ import { useEffect, useState } from 'react'
 import { getSessions, getHistory } from '../api.js'
 import GrowthChart from './GrowthChart.jsx'
 
-const WEAK_LABEL = {
-  clarity: '명확성',
-  specific: '구체성',
-  technical: '기술 정확성',
-}
 
 export default function HistoryPage({ onBack }) {
   const [sessions, setSessions] = useState([])
@@ -99,16 +94,21 @@ export default function HistoryPage({ onBack }) {
 
           {history && !loading && (
             <div className="space-y-4">
-              {history.weak_area && (
-                <div className="flex items-start gap-2.5 px-4 py-3 bg-amber-50 border border-amber-200 rounded-lg">
-                  <svg viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4 text-amber-500 shrink-0 mt-0.5">
-                    <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                  </svg>
-                  <p className="text-sm text-amber-700">
-                    <span className="font-semibold">{WEAK_LABEL[history.weak_area]}</span> 점수가 가장 낮습니다. 이 영역 질문을 더 연습해보세요.
-                  </p>
-                </div>
-              )}
+              {history.answers.some(a => a.overall !== null) && (() => {
+                const lowest = [...history.answers]
+                  .filter(a => a.overall !== null)
+                  .sort((a, b) => a.overall - b.overall)[0]
+                return (
+                  <div className="flex items-start gap-2.5 px-4 py-3 bg-amber-50 border border-amber-200 rounded-lg">
+                    <svg viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4 text-amber-500 shrink-0 mt-0.5">
+                      <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                    </svg>
+                    <p className="text-sm text-amber-700">
+                      종합 점수가 가장 낮은 질문은 <span className="font-semibold">"{lowest.question.slice(0, 30)}{lowest.question.length > 30 ? '...' : ''}"</span> ({lowest.overall?.toFixed(1)}점)입니다. 이 질문 유형을 더 연습해보세요.
+                    </p>
+                  </div>
+                )
+              })()}
 
               {history.summary && (
                 <div className="bg-indigo-50 rounded-xl border border-indigo-100 p-5">
@@ -126,24 +126,38 @@ export default function HistoryPage({ onBack }) {
                 <div className="px-4 py-2 grid grid-cols-12 text-xs font-semibold text-gray-400 uppercase tracking-wide">
                   <span className="col-span-1">#</span>
                   <span className="col-span-1">유형</span>
-                  <span className="col-span-7">질문</span>
-                  <span className="col-span-3 text-right">명·구·기</span>
+                  <span className="col-span-8">질문</span>
+                  <span className="col-span-2 text-right">종합</span>
                 </div>
                 {history.answers.map((a, i) => (
                   <div key={a.id}>
-                    <button
-                      onClick={() => setExpandedId(prev => prev === a.id ? null : a.id)}
-                      className="w-full px-4 py-3 grid grid-cols-12 items-center gap-2 hover:bg-gray-50 transition-colors text-left"
-                    >
-                      <span className="col-span-1 text-xs text-gray-400">{i + 1}</span>
-                      <span className={`col-span-1 text-xs px-1.5 py-0.5 rounded font-medium ${a.category === 'technical' ? 'bg-indigo-50 text-indigo-600' : 'bg-gray-100 text-gray-600'}`}>
-                        {a.category === 'technical' ? '기술' : '경험'}
-                      </span>
-                      <p className="col-span-7 text-sm text-gray-700 truncate">{a.question}</p>
-                      <span className="col-span-3 text-xs text-gray-400 text-right tabular-nums">
-                        {a.score_clarity ?? '-'} · {a.score_specific ?? '-'} · {a.score_technical ?? '-'}
-                      </span>
-                    </button>
+                    {/* find lowest overall id for highlight */}
+                    {(() => {
+                      const lowestId = [...history.answers]
+                        .filter(x => x.overall !== null)
+                        .sort((x, y) => x.overall - y.overall)[0]?.id
+                      const isLowest = a.id === lowestId
+                      return (
+                        <button
+                          onClick={() => setExpandedId(prev => prev === a.id ? null : a.id)}
+                          className={`w-full px-4 py-3 grid grid-cols-12 items-center gap-2 hover:bg-gray-50 transition-colors text-left ${isLowest ? 'bg-amber-50' : ''}`}
+                        >
+                          <span className="col-span-1 text-xs text-gray-400">{i + 1}</span>
+                          <span className={`col-span-1 text-xs px-1.5 py-0.5 rounded font-medium ${
+                            a.category === 'technical' ? 'bg-indigo-50 text-indigo-600' :
+                            a.category === 'culture'   ? 'bg-emerald-50 text-emerald-600' :
+                                                         'bg-gray-100 text-gray-600'
+                          }`}>
+                            {a.category === 'technical' ? '기술' : a.category === 'culture' ? '컬처핏' : '경험'}
+                          </span>
+                          <p className="col-span-8 text-sm text-gray-700 truncate">{a.question}</p>
+                          <span className={`col-span-2 text-xs text-right tabular-nums font-semibold ${isLowest ? 'text-amber-600' : 'text-gray-500'}`}>
+                            {a.overall != null ? a.overall.toFixed(1) : '-'}
+                            {isLowest && ' 🔴'}
+                          </span>
+                        </button>
+                      )
+                    })()}
                     {expandedId === a.id && a.answer_text && (
                       <div className="px-4 pb-3">
                         <p className="text-xs text-gray-600 leading-relaxed bg-gray-50 rounded-lg px-3 py-2.5 whitespace-pre-wrap border border-gray-100">

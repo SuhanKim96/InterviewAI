@@ -133,10 +133,14 @@ export default function App() {
 function ReportPage({ report, onRestart }) {
   const answers = report.answers || []
 
-  const avg = (key) => {
-    const vals = answers.map((a) => a[key]).filter(Boolean)
-    return vals.length ? (vals.reduce((a, b) => a + b, 0) / vals.length).toFixed(1) : '-'
-  }
+  const validOveralls = answers.map(a => a.overall).filter(v => v != null)
+  const overallAvg = validOveralls.length
+    ? (validOveralls.reduce((s, v) => s + v, 0) / validOveralls.length).toFixed(1)
+    : '-'
+  const overallPct = overallAvg !== '-' ? (overallAvg / 5) * 100 : 0
+  const lowestId = [...answers]
+    .filter(a => a.overall != null)
+    .sort((a, b) => a.overall - b.overall)[0]?.id
 
   return (
     <div>
@@ -155,51 +159,35 @@ function ReportPage({ report, onRestart }) {
         </div>
       )}
 
-      {/* Average scores */}
+      {/* Average score */}
       <div className="bg-white rounded-xl border border-gray-200 p-6 mb-5">
-        <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-4">평균 점수</h3>
-        <div className="space-y-3">
-          {[['명확성', 'score_clarity'], ['구체성', 'score_specific'], ['기술 정확성', 'score_technical']].map(([label, key]) => {
-            const val = avg(key)
-            const pct = val !== '-' ? (val / 5) * 100 : 0
-            return (
-              <div key={key} className="flex items-center gap-3">
-                <span className="text-sm text-gray-500 w-20 shrink-0">{label}</span>
-                <div className="flex-1 bg-gray-100 rounded-full h-1.5">
-                  <div className="h-1.5 rounded-full bg-indigo-500" style={{ width: `${pct}%` }} />
-                </div>
-                <span className="text-sm font-semibold text-gray-700 w-8 text-right">{val}</span>
-              </div>
-            )
-          })}
+        <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-4">평균 종합 점수</h3>
+        <div className="flex items-center gap-3">
+          <span className="text-sm text-gray-500 w-20 shrink-0">종합</span>
+          <div className="flex-1 bg-gray-100 rounded-full h-1.5">
+            <div className="h-1.5 rounded-full bg-indigo-500" style={{ width: `${overallPct}%` }} />
+          </div>
+          <span className="text-sm font-semibold text-gray-700 w-8 text-right">{overallAvg}</span>
         </div>
-        {report.weak_area && (
-          <p className="text-xs text-gray-400 mt-3">
-            약점 영역: <span className="font-medium text-indigo-500">
-              {report.weak_area === 'clarity' ? '명확성' : report.weak_area === 'specific' ? '구체성' : '기술 정확성'}
-            </span>
-          </p>
-        )}
       </div>
 
       {/* Per-question summary */}
       <div className="bg-white rounded-xl border border-gray-200 divide-y divide-gray-100 mb-8">
         {answers.map((a, i) => (
-          <div key={a.id} className="px-4 py-3 flex items-center gap-3">
+          <div key={a.id} className={`px-4 py-3 flex items-center gap-3 ${a.id === lowestId ? 'bg-amber-50' : ''}`}>
             <span className="text-xs text-gray-400 w-5 shrink-0">{i + 1}</span>
             <span className={`text-xs px-2 py-0.5 rounded font-medium shrink-0 ${
               a.category === 'technical' ? 'bg-indigo-50 text-indigo-600' :
               a.category === 'culture'   ? 'bg-emerald-50 text-emerald-600' :
-              a.category === 'follow_up' ? 'bg-amber-50 text-amber-600' :
                                            'bg-gray-100 text-gray-600'
             }`}>
               {a.category === 'technical' ? '기술' :
-               a.category === 'culture'   ? '컬처핏' :
-               a.category === 'follow_up' ? '꼬리' : '경험'}
+               a.category === 'culture'   ? '컬처핏' : '경험'}
             </span>
             <p className="text-sm text-gray-700 flex-1 truncate">{a.question}</p>
-            <span className="text-xs text-gray-400 shrink-0 tabular-nums">
-              {a.score_clarity} · {a.score_specific} · {a.score_technical}
+            <span className={`text-xs shrink-0 tabular-nums font-semibold ${a.id === lowestId ? 'text-amber-600' : 'text-gray-400'}`}>
+              {a.overall != null ? a.overall.toFixed(1) : '-'}
+              {a.id === lowestId && ' 🔴'}
             </span>
           </div>
         ))}

@@ -48,9 +48,11 @@ _PROMPT = ChatPromptTemplate.from_messages([
      "## 추가 규칙\n"
      "- JD 또는 지원자의 실제 경험에 근거한 질문만 생성. 근거 없는 일반 질문 금지.\n"
      "- experience 질문은 프로젝트명 없이 생성하지 마세요.\n"
-     "- 단순 암기 질문(정의 묻기)보다 '왜', '어떻게', 'trade-off'를 묻는 질문 우선.\n"
-     "- 가능하면 {company}가 실제로 사용하는 제품·기술 스택·도메인 맥락을 반영하세요. "
-     "JD에 드러난 정보를 활용하되, 확실하지 않은 정보는 지어내지 마세요.\n"
+     "- technical 질문은 JD에 명시된 핵심 기술 스택 또는 이력서의 주요 기술(프레임워크, 아키텍처, 패턴)에 집중하세요. "
+     "세부 라이브러리 클래스(BigDecimal, Optional 등)나 단순 정의 질문 금지.\n"
+     "- 단순 암기 질문(정의 묻기)보다 '왜', '어떻게', 'trade-off', '설계 결정' 관점의 질문 우선.\n"
+     "- 가능하면 {company}가 실제 사용하는 기술 스택에 대한 질문도 포함하세요. "
+     "단, JD에 명시된 기술만. 확실하지 않으면 지어내지 마세요.\n"
      "- JSON 외 텍스트(마크다운 백틱, 설명 문장 등) 출력 금지."),
 
     ("user",
@@ -96,7 +98,8 @@ async def generate(
 
     raw = _STRIP_RE.sub("", response.content).strip()
     try:
-        result = json.loads(raw)
+        decoder = json.JSONDecoder()
+        result, _ = decoder.raw_decode(raw.lstrip())
     except json.JSONDecodeError as e:
         raise ValueError(f"LLM JSON 파싱 실패: {e}\n원본: {raw[:200]}")
 

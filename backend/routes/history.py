@@ -27,6 +27,9 @@ async def get_history(session_id: int, db: AsyncSession = Depends(get_db)):
     score_trend: list[ScoreTrendPoint] = []
 
     for i, (answer, question) in enumerate(rows):
+        scores = [s for s in [answer.score_clarity, answer.score_specific, answer.score_technical] if s is not None]
+        overall = round(sum(scores) / len(scores), 2) if scores else None
+
         answers.append(AnswerSummary(
             id=answer.id,
             question=question.question,
@@ -35,6 +38,7 @@ async def get_history(session_id: int, db: AsyncSession = Depends(get_db)):
             score_clarity=answer.score_clarity,
             score_specific=answer.score_specific,
             score_technical=answer.score_technical,
+            overall=overall,
             created_at=answer.created_at,
         ))
         score_trend.append(ScoreTrendPoint(
@@ -42,17 +46,11 @@ async def get_history(session_id: int, db: AsyncSession = Depends(get_db)):
             clarity=float(answer.score_clarity) if answer.score_clarity is not None else None,
             specific=float(answer.score_specific) if answer.score_specific is not None else None,
             technical=float(answer.score_technical) if answer.score_technical is not None else None,
+            overall=overall,
+            category=question.category,
         ))
 
     weak_area: str | None = None
-    if answers:
-        avgs: dict[str, float] = {}
-        for key, attr in [("clarity", "score_clarity"), ("specific", "score_specific"), ("technical", "score_technical")]:
-            vals = [getattr(a, attr) for a in answers if getattr(a, attr) is not None]
-            if vals:
-                avgs[key] = sum(vals) / len(vals)
-        if avgs:
-            weak_area = min(avgs, key=lambda k: avgs[k])
 
     return HistoryResponse(
         answers=answers,

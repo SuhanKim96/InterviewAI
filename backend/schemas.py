@@ -89,6 +89,7 @@ class AnswerSummary(BaseModel):
     score_clarity: int | None
     score_specific: int | None
     score_technical: int | None
+    overall: float | None = None
     created_at: datetime
 
 
@@ -97,6 +98,8 @@ class ScoreTrendPoint(BaseModel):
     clarity: float | None
     specific: float | None
     technical: float | None
+    overall: float | None = None
+    category: str | None = None
 
 
 class HistoryResponse(BaseModel):
@@ -121,6 +124,7 @@ class FollowUpResponse(BaseModel):
 class AskRequest(BaseModel):
     session_id: int
     question: str
+    current_interview_question: str = ""
 
 
 class AskResponse(BaseModel):

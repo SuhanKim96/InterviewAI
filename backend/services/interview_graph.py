@@ -40,15 +40,18 @@ class InterviewState(TypedDict):
     difficulty: str
     types: list[str]
     total_planned: int
-    main_answered_count: int    # follow_up 제외 카운트 (현재 답변 저장 전)
+    main_answered_count: int    # 현재 답변 저장 전 카운트
     conversation_history: str
     current_question: str
-    current_category: str       # "technical"|"experience"|"culture"|"follow_up"
+    current_category: str       # "technical"|"experience"|"culture"
     answer_text: str
 
+    # 추가 컨텍스트
+    types_used_counts: dict     # {"technical": 2, "experience": 1, "culture": 0}
+
     # 노드 출력
-    eval_result: dict
-    orchestrator_action: str    # "next_technical"|"next_experience"|"next_culture"|"ask_followup"|"end_session"
+    eval_result: dict           # followup_node가 follow_up 필드를 추가
+    orchestrator_action: str    # "next_technical"|"next_experience"|"next_culture"|"end_session"
     next_question_data: dict | None
 
 
@@ -61,13 +64,12 @@ _ORCHESTRATOR_PROMPT = ChatPromptTemplate.from_messages([
      "- next_technical : 기술 개념/원리 질문 ('이 기술이 뭔가?')\n"
      "- next_experience: 지원자 프로젝트 경험 질문 ('당신이 뭘 했나?')\n"
      "- next_culture   : 가치관/협업/동기 질문 (types에 culture 포함 시만)\n"
-     "- ask_followup   : 약점 파고드는 꼬리질문 (직전 질문이 follow_up이면 선택 불가)\n"
-     "- end_session    : 면접 종료\n\n"
+     "- end_session    : 면접 종료 — 남은 예산이 0일 때만 선택 가능\n\n"
      "## 선택 기준\n"
-     "1. 평균 점수(clarity+specific+technical)가 9점 미만(3점 평균 미만)이고 직전이 follow_up이 아니면 → ask_followup\n"
-     "2. 남은 예산이 0이면 → end_session\n"
-     "3. types에 culture가 없으면 → next_culture 선택 불가\n"
-     "4. 직전이 follow_up이면 → ask_followup 선택 불가\n\n"
+     "1. 남은 예산이 0이면 → end_session. 0보다 크면 절대 end_session 선택 금지.\n"
+     "2. types에 culture가 없으면 → next_culture 선택 불가\n"
+     "3. 이전에 같은 카테고리가 연속되면 다른 카테고리 선택\n"
+     "4. types에 포함된 카테고리를 균등하게 배분하세요. 사용 횟수가 0인 카테고리를 우선 선택하세요.\n\n"
      '반환 형식: {{"action": "..."}} — 다른 텍스트 절대 금지'),
     ("user",
      "방금 질문 카테고리: {current_category}\n"
@@ -76,7 +78,7 @@ _ORCHESTRATOR_PROMPT = ChatPromptTemplate.from_messages([
      "강점: {strengths}\n"
      "약점: {weaknesses}\n\n"
      "허용 유형: {types}\n"
-     "직전이 꼬리질문이었는가: {was_followup}\n"
+     "현재 카테고리 사용 횟수: {types_used_counts}\n"
      "남은 주요 질문 예산: {remaining}\n\n"
      "대화 맥락:\n{conversation_history}"),
 ])
@@ -84,23 +86,23 @@ _ORCHESTRATOR_PROMPT = ChatPromptTemplate.from_messages([
 _FOLLOWUP_PROMPT = ChatPromptTemplate.from_messages([
     ("system",
      "당신은 기술 면접관입니다. 지원자 답변의 약점을 정확히 파고드는 꼬리질문 1개를 생성하세요.\n"
+     "- 오직 바로 아래의 [원래 질문]과 [지원자 답변]에만 근거해 꼬리질문을 생성하라.\n"
+     "  이전 대화의 다른 주제를 절대 끌어오지 마라.\n"
      "- 이미 답한 내용 반복 금지\n"
      "- '왜', '어떻게', '구체적으로' 중심의 심층 질문\n"
      "- JSON 외 텍스트 절대 금지"),
     ("user",
      "원래 질문: {current_question}\n"
      "지원자 답변: {answer_text}\n"
-     "식별된 약점: {weaknesses}\n"
-     "대화 맥락: {conversation_history}\n\n"
-     '{{"question":"꼬리질문 텍스트","intent":"이 꼬리질문의 목적"}}'),
-
+     "식별된 약점: {weaknesses}\n\n"
+     '{{"question":"꼬리질문 텍스트"}}'),
 ])
 
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
 
 def _parse_action(raw: str, types: list[str], answered_count: int) -> str:
-    valid = {"next_technical", "next_experience", "next_culture", "ask_followup", "end_session"}
+    valid = {"next_technical", "next_experience", "next_culture", "end_session"}
     try:
         data = json.loads(_STRIP_RE.sub("", raw).strip())
         action = data.get("action", "")
@@ -108,7 +110,6 @@ def _parse_action(raw: str, types: list[str], answered_count: int) -> str:
             return action
     except Exception:
         pass
-    # 파싱 실패 시 round-robin 폴백
     cat = types[answered_count % len(types)]
     return f"next_{cat}"
 
@@ -126,16 +127,44 @@ async def evaluator_node(state: InterviewState) -> dict:
     return {"eval_result": result}
 
 
-async def orchestrator_node(state: InterviewState) -> dict:
-    is_followup = state["current_category"] == "follow_up"
-    next_main = state["main_answered_count"] + (0 if is_followup else 1)
+async def followup_node(state: InterviewState) -> dict:
+    """약점이 있으면 꼬리질문 텍스트 생성 후 eval_result["follow_up"] 업데이트.
+    강한 답변이면 LLM 호출 없이 빈 문자열로 설정."""
+    ev = state["eval_result"]
+    scores = [s for s in [ev.get("score_clarity"), ev.get("score_specific"), ev.get("score_technical")] if s]
+    avg = sum(scores) / len(scores) if scores else 5.0
+    weaknesses = ev.get("weaknesses", "").strip()
 
-    # 하드 리밋: 예산 소진 시 강제 종료
+    if avg >= 4 or not weaknesses:
+        return {"eval_result": {**ev, "follow_up": ""}}
+
+    chain = _FOLLOWUP_PROMPT | _get_followup_llm()
+    resp = await chain.ainvoke({
+        "current_question": state["current_question"],
+        "answer_text":      state["answer_text"],
+        "weaknesses":       weaknesses,
+    })
+    raw = _STRIP_RE.sub("", resp.content).strip()
+    try:
+        data = json.loads(raw)
+        follow_up_text = data.get("question", "")
+    except json.JSONDecodeError:
+        follow_up_text = ""
+
+    return {"eval_result": {**ev, "follow_up": follow_up_text}}
+
+
+async def orchestrator_node(state: InterviewState) -> dict:
+    next_main = state["main_answered_count"] + 1
+
     if next_main >= state["total_planned"]:
         return {"orchestrator_action": "end_session"}
 
     ev = state["eval_result"]
     chain = _ORCHESTRATOR_PROMPT | _get_orchestrator_llm()
+    remaining = state["total_planned"] - next_main
+    types_used_counts = state.get("types_used_counts", {})
+
     resp = await chain.ainvoke({
         "current_category":    state["current_category"],
         "current_question":    state["current_question"],
@@ -145,21 +174,28 @@ async def orchestrator_node(state: InterviewState) -> dict:
         "strengths":           ev.get("strengths", ""),
         "weaknesses":          ev.get("weaknesses", ""),
         "types":               ", ".join(state["types"]),
-        "was_followup":        "예" if is_followup else "아니오",
-        "remaining":           state["total_planned"] - next_main,
+        "types_used_counts":   str(types_used_counts),
+        "remaining":           remaining,
         "conversation_history": state["conversation_history"],
     })
     action = _parse_action(resp.content, state["types"], state["main_answered_count"])
 
-    # 안전장치: culture가 types에 없으면 교체
+    # remaining > 0인데 LLM이 end_session을 반환하면 무시 (total_planned 체크가 종료 권한을 가짐)
+    if action == "end_session" and remaining > 0:
+        cat = state["types"][state["main_answered_count"] % len(state["types"])]
+        action = f"next_{cat}"
+
+    # culture가 types에 없으면 교체
     if action == "next_culture" and "culture" not in state["types"]:
         cat = state["types"][state["main_answered_count"] % len(state["types"])]
         action = f"next_{cat}"
 
-    # 안전장치: 연속 꼬리질문 방지
-    if action == "ask_followup" and is_followup:
-        cat = state["types"][state["main_answered_count"] % len(state["types"])]
-        action = f"next_{cat}"
+    # culture가 아직 한 번도 안 쓰였으면 강제 (마지막 1개는 제외)
+    if (action != "next_culture"
+            and "culture" in state["types"]
+            and types_used_counts.get("culture", 0) == 0
+            and remaining > 1):
+        action = "next_culture"
 
     return {"orchestrator_action": action}
 
@@ -196,41 +232,21 @@ async def culture_node(state: InterviewState) -> dict:
     return await _interviewer_node(state, "culture")
 
 
-async def followup_node(state: InterviewState) -> dict:
-    chain = _FOLLOWUP_PROMPT | _get_followup_llm()
-    resp = await chain.ainvoke({
-        "current_question":    state["current_question"],
-        "answer_text":         state["answer_text"],
-        "weaknesses":          state["eval_result"].get("weaknesses", ""),
-        "conversation_history": state["conversation_history"],
-    })
-    raw = _STRIP_RE.sub("", resp.content).strip()
-    try:
-        data = json.loads(raw)
-    except json.JSONDecodeError:
-        data = {"question": "방금 답변에서 가장 어려웠던 부분을 더 구체적으로 설명해주실 수 있나요?", "intent": "구체성 향상"}
-    return {"next_question_data": {
-        "question":   data.get("question", ""),
-        "intent":     data.get("intent", ""),
-        "related_to": state["current_question"][:80],
-        "category":   "follow_up",
-    }}
-
-
 # ── Graph Assembly ────────────────────────────────────────────────────────────
 
 def build_interview_graph():
     builder = StateGraph(InterviewState)
 
     builder.add_node("evaluator",    evaluator_node)
+    builder.add_node("followup",     followup_node)
     builder.add_node("orchestrator", orchestrator_node)
     builder.add_node("technical",    technical_node)
     builder.add_node("experience",   experience_node)
     builder.add_node("culture",      culture_node)
-    builder.add_node("followup",     followup_node)
 
     builder.set_entry_point("evaluator")
-    builder.add_edge("evaluator", "orchestrator")
+    builder.add_edge("evaluator", "followup")      # 항상 followup 거침
+    builder.add_edge("followup", "orchestrator")
     builder.add_conditional_edges(
         "orchestrator",
         lambda s: s.get("orchestrator_action", "end_session"),
@@ -238,11 +254,10 @@ def build_interview_graph():
             "next_technical":  "technical",
             "next_experience": "experience",
             "next_culture":    "culture",
-            "ask_followup":    "followup",
             "end_session":     END,
         },
     )
-    for node in ("technical", "experience", "culture", "followup"):
+    for node in ("technical", "experience", "culture"):
         builder.add_edge(node, END)
 
     return builder.compile()
@@ -265,6 +280,13 @@ async def run_turn(session, current_q, answer_text: str, db) -> tuple[dict, dict
     main_count   = await session_manager.count_answered_turns(session.id, db)
     types        = json.loads(session.types_json or '["technical","experience"]')
 
+    # 각 카테고리별 사용 횟수 계산
+    types_used_counts: dict = {t: 0 for t in types}
+    for item in history_list:
+        cat = item.get("category", "")
+        if cat in types_used_counts:
+            types_used_counts[cat] += 1
+
     state = InterviewState(
         session_id=session.id,
         jd_text=session.jd_text,
@@ -278,6 +300,7 @@ async def run_turn(session, current_q, answer_text: str, db) -> tuple[dict, dict
         current_question=current_q.question,
         current_category=current_q.category or "technical",
         answer_text=answer_text,
+        types_used_counts=types_used_counts,
         eval_result={},
         orchestrator_action="",
         next_question_data=None,

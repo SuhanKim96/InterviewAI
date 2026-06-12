@@ -25,7 +25,14 @@ function Section({ label, children }) {
   )
 }
 
-export default function AnswerFeedback({ feedback, question, onNext, isLast }) {
+const SCORE_LABELS = {
+  technical:  ['명확성', '기술 정확성', '깊이'],
+  experience: ['명확성', '구체성', '결과'],
+  culture:    ['명확성', '진정성', '가치관 적합성'],
+}
+
+export default function AnswerFeedback({ feedback, question, category, onNext, isLast }) {
+  const labels = SCORE_LABELS[category] ?? ['명확성', '구체성', '기술 정확성']
   const [visible, setVisible] = useState(false)
   const [showRubric, setShowRubric] = useState(false)
   const [followUpAnswer, setFollowUpAnswer] = useState('')
@@ -74,9 +81,9 @@ export default function AnswerFeedback({ feedback, question, onNext, isLast }) {
           )}
         </div>
         <div className="space-y-2.5">
-          <ScoreRow label="명확성" score={feedback.score_clarity} />
-          <ScoreRow label="구체성" score={feedback.score_specific} />
-          <ScoreRow label="기술 정확성" score={feedback.score_technical} />
+          <ScoreRow label={labels[0]} score={feedback.score_clarity} />
+          <ScoreRow label={labels[1]} score={feedback.score_specific} />
+          <ScoreRow label={labels[2]} score={feedback.score_technical} />
         </div>
       </div>
 

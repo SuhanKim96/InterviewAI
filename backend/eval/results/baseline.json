@@ -1,0 +1,639 @@
+{
+  "label": "baseline",
+  "k": 8,
+  "n_questions": 37,
+  "hit_rate": 0.8649,
+  "mrr": 0.6021,
+  "hits": 32,
+  "per_question": [
+    {
+      "question": "API 성능 개선을 위한 접근 방식과 사용한 기술 스택에 대해 설명해주세요.",
+      "ground_truth_chunk_id": "persona_a_backend_python_chunk_0",
+      "source": "persona_a_backend_python.md",
+      "rank": 3,
+      "hit": true,
+      "retrieved_ids": [
+        "persona_f_fullstack_chunk_4",
+        "persona_b_frontend_react_chunk_4",
+        "persona_a_backend_python_chunk_0",
+        "persona_f_fullstack_chunk_0",
+        "persona_f_fullstack_chunk_5",
+        "persona_f_fullstack_chunk_2",
+        "persona_e_devops_chunk_6",
+        "persona_b_frontend_react_chunk_0"
+      ]
+    },
+    {
+      "question": "성능 개선을 위해 데이터베이스 쿼리를 최적화한 경험에 대해 설명해주시고, 그 과정에서 어떤 전략을 사용했는지 구체적으로 말씀해 주세요.",
+      "ground_truth_chunk_id": "persona_a_backend_python_chunk_1",
+      "source": "persona_a_backend_python.md",
+      "rank": null,
+      "hit": false,
+      "retrieved_ids": [
+        "persona_d_data_engineer_chunk_2",
+        "persona_d_data_engineer_chunk_4",
+        "persona_c_ml_engineer_chunk_4",
+        "persona_c_ml_engineer_chunk_3",
+        "persona_d_data_engineer_chunk_3",
+        "persona_f_fullstack_chunk_5",
+        "persona_a_backend_python_chunk_5",
+        "persona_c_ml_engineer_chunk_5"
+      ]
+    },
+    {
+      "question": "비동기 처리 시스템에서 트랜잭션 관리의 복잡성을 해결하기 위해 어떤 접근 방식을 사용했는지 구체적으로 설명해주세요.",
+      "ground_truth_chunk_id": "persona_a_backend_python_chunk_2",
+      "source": "persona_a_backend_python.md",
+      "rank": 1,
+      "hit": true,
+      "retrieved_ids": [
+        "persona_a_backend_python_chunk_2",
+        "persona_d_data_engineer_chunk_1",
+        "persona_d_data_engineer_chunk_2",
+        "persona_f_fullstack_chunk_1",
+        "persona_d_data_engineer_chunk_5",
+        "persona_a_backend_python_chunk_4",
+        "persona_d_data_engineer_chunk_3",
+        "persona_e_devops_chunk_6"
+      ]
+    },
+    {
+      "question": "중복 결제를 방지하기 위해 사용한 전략에 대해 설명해주시고, 이와 관련하여 발생할 수 있는 문제점은 무엇인지 말씀해주시겠습니까?",
+      "ground_truth_chunk_id": "persona_a_backend_python_chunk_3",
+      "source": "persona_a_backend_python.md",
+      "rank": 2,
+      "hit": true,
+      "retrieved_ids": [
+        "persona_a_backend_python_chunk_2",
+        "persona_a_backend_python_chunk_3",
+        "persona_f_fullstack_chunk_1",
+        "persona_f_fullstack_chunk_3",
+        "persona_e_devops_chunk_5",
+        "persona_d_data_engineer_chunk_1",
+        "persona_d_data_engineer_chunk_5",
+        "persona_d_data_engineer_chunk_2"
+      ]
+    },
+    {
+      "question": "대량의 데이터를 처리할 때 성능을 개선하기 위해 어떤 접근 방식을 사용했는지 구체적인 사례를 들어 설명해 주세요.",
+      "ground_truth_chunk_id": "persona_a_backend_python_chunk_4",
+      "source": "persona_a_backend_python.md",
+      "rank": 4,
+      "hit": true,
+      "retrieved_ids": [
+        "persona_d_data_engineer_chunk_3",
+        "persona_d_data_engineer_chunk_4",
+        "persona_d_data_engineer_chunk_2",
+        "persona_a_backend_python_chunk_4",
+        "persona_c_ml_engineer_chunk_4",
+        "persona_c_ml_engineer_chunk_3",
+        "persona_f_fullstack_chunk_4",
+        "persona_f_fullstack_chunk_5"
+      ]
+    },
+    {
+      "question": "테스트 전략을 수립할 때, 실제 데이터베이스를 사용하는 이유와 그로 인해 얻는 이점에 대해 설명해주세요.",
+      "ground_truth_chunk_id": "persona_a_backend_python_chunk_5",
+      "source": "persona_a_backend_python.md",
+      "rank": 1,
+      "hit": true,
+      "retrieved_ids": [
+        "persona_a_backend_python_chunk_5",
+        "persona_d_data_engineer_chunk_2",
+        "persona_d_data_engineer_chunk_4",
+        "persona_f_fullstack_chunk_5",
+        "persona_e_devops_chunk_3",
+        "persona_d_data_engineer_chunk_5",
+        "persona_c_ml_engineer_chunk_3",
+        "persona_d_data_engineer_chunk_3"
+      ]
+    },
+    {
+      "question": "최근에 사용한 프론트엔드 프레임워크의 특징과 그 선택이 프로젝트에 어떻게 기여했는지에 대해 설명해주세요.",
+      "ground_truth_chunk_id": "persona_b_frontend_react_chunk_0",
+      "source": "persona_b_frontend_react.md",
+      "rank": 1,
+      "hit": true,
+      "retrieved_ids": [
+        "persona_b_frontend_react_chunk_0",
+        "persona_b_frontend_react_chunk_1",
+        "persona_f_fullstack_chunk_5",
+        "persona_b_frontend_react_chunk_5",
+        "persona_c_ml_engineer_chunk_0",
+        "persona_e_devops_chunk_0",
+        "persona_e_devops_chunk_1",
+        "persona_e_devops_chunk_5"
+      ]
+    },
+    {
+      "question": "코드 스플리팅을 통해 성능 개선을 이룬 경험에 대해 설명해주세요.",
+      "ground_truth_chunk_id": "persona_b_frontend_react_chunk_1",
+      "source": "persona_b_frontend_react.md",
+      "rank": 7,
+      "hit": true,
+      "retrieved_ids": [
+        "persona_b_frontend_react_chunk_4",
+        "persona_d_data_engineer_chunk_4",
+        "persona_f_fullstack_chunk_4",
+        "persona_d_data_engineer_chunk_3",
+        "persona_e_devops_chunk_4",
+        "persona_e_devops_chunk_5",
+        "persona_b_frontend_react_chunk_1",
+        "persona_b_frontend_react_chunk_3"
+      ]
+    },
+    {
+      "question": "데이터 정규화와 참조 동일성을 유지하는 방법에 대해 설명해주시고, 이를 통해 성능 최적화를 달성한 경험을 말씀해 주세요.",
+      "ground_truth_chunk_id": "persona_b_frontend_react_chunk_2",
+      "source": "persona_b_frontend_react.md",
+      "rank": null,
+      "hit": false,
+      "retrieved_ids": [
+        "persona_c_ml_engineer_chunk_5",
+        "persona_d_data_engineer_chunk_3",
+        "persona_f_fullstack_chunk_4",
+        "persona_d_data_engineer_chunk_2",
+        "persona_f_fullstack_chunk_5",
+        "persona_c_ml_engineer_chunk_3",
+        "persona_c_ml_engineer_chunk_4",
+        "persona_e_devops_chunk_5"
+      ]
+    },
+    {
+      "question": "서버와 클라이언트 간의 경계를 명확히 하기 위해 어떤 접근 방식을 사용했는지 설명해 주시겠어요?",
+      "ground_truth_chunk_id": "persona_b_frontend_react_chunk_3",
+      "source": "persona_b_frontend_react.md",
+      "rank": 2,
+      "hit": true,
+      "retrieved_ids": [
+        "persona_f_fullstack_chunk_1",
+        "persona_b_frontend_react_chunk_3",
+        "persona_e_devops_chunk_5",
+        "persona_f_fullstack_chunk_4",
+        "persona_b_frontend_react_chunk_4",
+        "persona_b_frontend_react_chunk_2",
+        "persona_f_fullstack_chunk_5",
+        "persona_f_fullstack_chunk_2"
+      ]
+    },
+    {
+      "question": "웹 접근성을 개선하기 위해 어떤 도구나 방법을 사용했는지와 그 과정에서 발견한 문제를 해결한 경험에 대해 설명해주세요.",
+      "ground_truth_chunk_id": "persona_b_frontend_react_chunk_4",
+      "source": "persona_b_frontend_react.md",
+      "rank": 1,
+      "hit": true,
+      "retrieved_ids": [
+        "persona_b_frontend_react_chunk_4",
+        "persona_f_fullstack_chunk_5",
+        "persona_f_fullstack_chunk_2",
+        "persona_f_fullstack_chunk_1",
+        "persona_b_frontend_react_chunk_0",
+        "persona_f_fullstack_chunk_4",
+        "persona_b_frontend_react_chunk_2",
+        "persona_b_frontend_react_chunk_1"
+      ]
+    },
+    {
+      "question": "데이터 요청 최적화와 관련하여, 네트워크 요청을 줄이면서도 데이터의 신선도를 유지하기 위한 전략을 어떻게 수립했는지 구체적으로 설명해주세요.",
+      "ground_truth_chunk_id": "persona_b_frontend_react_chunk_5",
+      "source": "persona_b_frontend_react.md",
+      "rank": null,
+      "hit": false,
+      "retrieved_ids": [
+        "persona_d_data_engineer_chunk_3",
+        "persona_f_fullstack_chunk_4",
+        "persona_d_data_engineer_chunk_4",
+        "persona_e_devops_chunk_1",
+        "persona_e_devops_chunk_6",
+        "persona_a_backend_python_chunk_4",
+        "persona_d_data_engineer_chunk_2",
+        "persona_e_devops_chunk_5"
+      ]
+    },
+    {
+      "question": "딥러닝 모델을 활용한 추천 시스템 개선 경험에 대해 설명해주시고, 이 과정에서 어떤 도전 과제를 마주했으며 이를 어떻게 해결했는지 말씀해 주세요.",
+      "ground_truth_chunk_id": "persona_c_ml_engineer_chunk_0",
+      "source": "persona_c_ml_engineer.md",
+      "rank": 1,
+      "hit": true,
+      "retrieved_ids": [
+        "persona_c_ml_engineer_chunk_0",
+        "persona_c_ml_engineer_chunk_4",
+        "persona_c_ml_engineer_chunk_5",
+        "persona_c_ml_engineer_chunk_1",
+        "persona_c_ml_engineer_chunk_3",
+        "persona_f_fullstack_chunk_5",
+        "persona_d_data_engineer_chunk_2",
+        "persona_d_data_engineer_chunk_3"
+      ]
+    },
+    {
+      "question": "사용자 행동 데이터를 기반으로 한 추천 시스템의 성능을 향상시키기 위해 어떤 접근 방식을 사용했는지 설명해주시겠어요?",
+      "ground_truth_chunk_id": "persona_c_ml_engineer_chunk_1",
+      "source": "persona_c_ml_engineer.md",
+      "rank": 8,
+      "hit": true,
+      "retrieved_ids": [
+        "persona_e_devops_chunk_5",
+        "persona_d_data_engineer_chunk_5",
+        "persona_b_frontend_react_chunk_4",
+        "persona_b_frontend_react_chunk_3",
+        "persona_d_data_engineer_chunk_3",
+        "persona_d_data_engineer_chunk_2",
+        "persona_a_backend_python_chunk_1",
+        "persona_c_ml_engineer_chunk_1"
+      ]
+    },
+    {
+      "question": "감정 분석 모델을 개발하면서 클래스 불균형 문제를 해결하기 위해 어떤 접근 방식을 사용했는지 구체적으로 설명해 주세요.",
+      "ground_truth_chunk_id": "persona_c_ml_engineer_chunk_2",
+      "source": "persona_c_ml_engineer.md",
+      "rank": 1,
+      "hit": true,
+      "retrieved_ids": [
+        "persona_c_ml_engineer_chunk_2",
+        "persona_f_fullstack_chunk_5",
+        "persona_c_ml_engineer_chunk_5",
+        "persona_c_ml_engineer_chunk_1",
+        "persona_c_ml_engineer_chunk_0",
+        "persona_c_ml_engineer_chunk_4",
+        "persona_b_frontend_react_chunk_2",
+        "persona_f_fullstack_chunk_2"
+      ]
+    },
+    {
+      "question": "모델 배포 자동화 과정에서 경험한 주요 도전 과제와 이를 해결하기 위해 어떤 접근 방식을 사용했는지 설명해주세요.",
+      "ground_truth_chunk_id": "persona_c_ml_engineer_chunk_3",
+      "source": "persona_c_ml_engineer.md",
+      "rank": 4,
+      "hit": true,
+      "retrieved_ids": [
+        "persona_c_ml_engineer_chunk_5",
+        "persona_c_ml_engineer_chunk_0",
+        "persona_c_ml_engineer_chunk_4",
+        "persona_c_ml_engineer_chunk_3",
+        "persona_b_frontend_react_chunk_4",
+        "persona_d_data_engineer_chunk_3",
+        "persona_e_devops_chunk_5",
+        "persona_e_devops_chunk_3"
+      ]
+    },
+    {
+      "question": "전이 학습에서 레이어를 점진적으로 조정하는 방법에 대해 설명하고, 이 접근 방식이 모델 성능에 미친 영향을 구체적인 수치와 함께 말씀해 주세요.",
+      "ground_truth_chunk_id": "persona_c_ml_engineer_chunk_4",
+      "source": "persona_c_ml_engineer.md",
+      "rank": 2,
+      "hit": true,
+      "retrieved_ids": [
+        "persona_c_ml_engineer_chunk_5",
+        "persona_c_ml_engineer_chunk_4",
+        "persona_c_ml_engineer_chunk_3",
+        "persona_c_ml_engineer_chunk_2",
+        "persona_c_ml_engineer_chunk_0",
+        "persona_c_ml_engineer_chunk_1",
+        "persona_b_frontend_react_chunk_4",
+        "persona_b_frontend_react_chunk_2"
+      ]
+    },
+    {
+      "question": "모델 최적화 과정에서 성능 저하를 최소화하면서 효율성을 높인 경험에 대해 말씀해 주세요.",
+      "ground_truth_chunk_id": "persona_c_ml_engineer_chunk_5",
+      "source": "persona_c_ml_engineer.md",
+      "rank": 1,
+      "hit": true,
+      "retrieved_ids": [
+        "persona_c_ml_engineer_chunk_5",
+        "persona_d_data_engineer_chunk_3",
+        "persona_c_ml_engineer_chunk_4",
+        "persona_c_ml_engineer_chunk_0",
+        "persona_b_frontend_react_chunk_4",
+        "persona_e_devops_chunk_5",
+        "persona_c_ml_engineer_chunk_1",
+        "persona_c_ml_engineer_chunk_3"
+      ]
+    },
+    {
+      "question": "실시간 데이터 처리 시스템을 구축하면서 직면했던 주요 도전 과제와 이를 해결하기 위해 어떤 접근 방식을 사용했는지에 대해 설명해주세요.",
+      "ground_truth_chunk_id": "persona_d_data_engineer_chunk_0",
+      "source": "persona_d_data_engineer.md",
+      "rank": 7,
+      "hit": true,
+      "retrieved_ids": [
+        "persona_f_fullstack_chunk_1",
+        "persona_d_data_engineer_chunk_1",
+        "persona_d_data_engineer_chunk_3",
+        "persona_d_data_engineer_chunk_4",
+        "persona_a_backend_python_chunk_1",
+        "persona_d_data_engineer_chunk_2",
+        "persona_d_data_engineer_chunk_0",
+        "persona_b_frontend_react_chunk_3"
+      ]
+    },
+    {
+      "question": "이벤트 처리 시스템에서 상태를 유지하는 방식에 대해 설명해주시고, 이를 통해 어떤 이점을 얻었는지 구체적인 사례를 들어 말씀해 주세요.",
+      "ground_truth_chunk_id": "persona_d_data_engineer_chunk_1",
+      "source": "persona_d_data_engineer.md",
+      "rank": 1,
+      "hit": true,
+      "retrieved_ids": [
+        "persona_d_data_engineer_chunk_1",
+        "persona_a_backend_python_chunk_1",
+        "persona_a_backend_python_chunk_2",
+        "persona_f_fullstack_chunk_1",
+        "persona_b_frontend_react_chunk_3",
+        "persona_d_data_engineer_chunk_3",
+        "persona_e_devops_chunk_6",
+        "persona_d_data_engineer_chunk_4"
+      ]
+    },
+    {
+      "question": "데이터 변환 및 처리 과정에서 성능 최적화를 위해 어떤 전략을 사용했는지 구체적인 사례를 들어 설명해주세요.",
+      "ground_truth_chunk_id": "persona_d_data_engineer_chunk_2",
+      "source": "persona_d_data_engineer.md",
+      "rank": 2,
+      "hit": true,
+      "retrieved_ids": [
+        "persona_d_data_engineer_chunk_3",
+        "persona_d_data_engineer_chunk_2",
+        "persona_f_fullstack_chunk_4",
+        "persona_c_ml_engineer_chunk_4",
+        "persona_d_data_engineer_chunk_4",
+        "persona_c_ml_engineer_chunk_5",
+        "persona_c_ml_engineer_chunk_3",
+        "persona_e_devops_chunk_4"
+      ]
+    },
+    {
+      "question": "복잡한 데이터 파이프라인을 관리하면서 발생한 문제를 해결한 경험에 대해 말씀해주시고, 그 과정에서 어떤 전략을 사용했는지 구체적으로 설명해주세요.",
+      "ground_truth_chunk_id": "persona_d_data_engineer_chunk_3",
+      "source": "persona_d_data_engineer.md",
+      "rank": null,
+      "hit": false,
+      "retrieved_ids": [
+        "persona_a_backend_python_chunk_2",
+        "persona_d_data_engineer_chunk_4",
+        "persona_c_ml_engineer_chunk_3",
+        "persona_d_data_engineer_chunk_2",
+        "persona_f_fullstack_chunk_1",
+        "persona_d_data_engineer_chunk_0",
+        "persona_f_fullstack_chunk_2",
+        "persona_a_backend_python_chunk_4"
+      ]
+    },
+    {
+      "question": "데이터 처리 과정에서 발생할 수 있는 불균형 문제를 해결하기 위해 사용했던 방법과 그 효과에 대해 설명해주세요.",
+      "ground_truth_chunk_id": "persona_d_data_engineer_chunk_4",
+      "source": "persona_d_data_engineer.md",
+      "rank": 2,
+      "hit": true,
+      "retrieved_ids": [
+        "persona_d_data_engineer_chunk_2",
+        "persona_d_data_engineer_chunk_4",
+        "persona_d_data_engineer_chunk_3",
+        "persona_f_fullstack_chunk_5",
+        "persona_c_ml_engineer_chunk_3",
+        "persona_a_backend_python_chunk_4",
+        "persona_c_ml_engineer_chunk_5",
+        "persona_d_data_engineer_chunk_1"
+      ]
+    },
+    {
+      "question": "쿼리 성능을 최적화하기 위해 데이터 파티셔닝을 어떻게 활용해본 경험이 있는지 설명해주세요.",
+      "ground_truth_chunk_id": "persona_d_data_engineer_chunk_5",
+      "source": "persona_d_data_engineer.md",
+      "rank": 1,
+      "hit": true,
+      "retrieved_ids": [
+        "persona_d_data_engineer_chunk_5",
+        "persona_d_data_engineer_chunk_4",
+        "persona_d_data_engineer_chunk_3",
+        "persona_d_data_engineer_chunk_2",
+        "persona_c_ml_engineer_chunk_4",
+        "persona_c_ml_engineer_chunk_3",
+        "persona_f_fullstack_chunk_4",
+        "persona_a_backend_python_chunk_4"
+      ]
+    },
+    {
+      "question": "멀티 테넌트 환경에서 클러스터를 효율적으로 운영하기 위해 어떤 전략이나 접근 방식을 사용하셨는지 설명해주세요.",
+      "ground_truth_chunk_id": "persona_e_devops_chunk_0",
+      "source": "persona_e_devops.md",
+      "rank": 2,
+      "hit": true,
+      "retrieved_ids": [
+        "persona_e_devops_chunk_1",
+        "persona_e_devops_chunk_0",
+        "persona_b_frontend_react_chunk_4",
+        "persona_e_devops_chunk_5",
+        "persona_d_data_engineer_chunk_2",
+        "persona_b_frontend_react_chunk_3",
+        "persona_c_ml_engineer_chunk_0",
+        "persona_f_fullstack_chunk_1"
+      ]
+    },
+    {
+      "question": "Kubernetes 환경에서 테넌트 간 네트워크 격리를 구현하기 위해 어떤 전략을 사용했는지와 그 과정에서 직면했던 도전 과제에 대해 설명해주세요.",
+      "ground_truth_chunk_id": "persona_e_devops_chunk_1",
+      "source": "persona_e_devops.md",
+      "rank": 1,
+      "hit": true,
+      "retrieved_ids": [
+        "persona_e_devops_chunk_1",
+        "persona_e_devops_chunk_0",
+        "persona_e_devops_chunk_6",
+        "persona_f_fullstack_chunk_5",
+        "persona_b_frontend_react_chunk_5",
+        "persona_a_backend_python_chunk_5",
+        "persona_e_devops_chunk_4",
+        "persona_d_data_engineer_chunk_3"
+      ]
+    },
+    {
+      "question": "서비스의 성능을 최적화하기 위해 메트릭을 활용한 경험에 대해 말씀해 주세요. 특히, 어떤 문제를 해결하기 위해 어떤 접근 방식을 사용했는지 구체적으로 설명해 주시기 바랍니다.",
+      "ground_truth_chunk_id": "persona_e_devops_chunk_2",
+      "source": "persona_e_devops.md",
+      "rank": null,
+      "hit": false,
+      "retrieved_ids": [
+        "persona_e_devops_chunk_5",
+        "persona_f_fullstack_chunk_5",
+        "persona_d_data_engineer_chunk_3",
+        "persona_b_frontend_react_chunk_4",
+        "persona_e_devops_chunk_0",
+        "persona_a_backend_python_chunk_4",
+        "persona_f_fullstack_chunk_4",
+        "persona_a_backend_python_chunk_3"
+      ]
+    },
+    {
+      "question": "단계적 트래픽 전환을 통해 배포의 안정성을 높인 경험에 대해 말씀해주시고, 이 과정에서 직면했던 도전과 그에 대한 해결책은 무엇이었는지 설명해 주세요.",
+      "ground_truth_chunk_id": "persona_e_devops_chunk_3",
+      "source": "persona_e_devops.md",
+      "rank": 1,
+      "hit": true,
+      "retrieved_ids": [
+        "persona_e_devops_chunk_3",
+        "persona_c_ml_engineer_chunk_4",
+        "persona_d_data_engineer_chunk_2",
+        "persona_e_devops_chunk_5",
+        "persona_a_backend_python_chunk_2",
+        "persona_b_frontend_react_chunk_4",
+        "persona_a_backend_python_chunk_4",
+        "persona_c_ml_engineer_chunk_5"
+      ]
+    },
+    {
+      "question": "인프라 코드화 과정에서 효율성을 높이기 위해 어떤 전략을 사용하였는지 구체적인 사례를 들어 설명해주세요.",
+      "ground_truth_chunk_id": "persona_e_devops_chunk_4",
+      "source": "persona_e_devops.md",
+      "rank": 1,
+      "hit": true,
+      "retrieved_ids": [
+        "persona_e_devops_chunk_4",
+        "persona_f_fullstack_chunk_4",
+        "persona_c_ml_engineer_chunk_5",
+        "persona_c_ml_engineer_chunk_4",
+        "persona_b_frontend_react_chunk_3",
+        "persona_b_frontend_react_chunk_4",
+        "persona_e_devops_chunk_6",
+        "persona_a_backend_python_chunk_3"
+      ]
+    },
+    {
+      "question": "SLO 기반의 운영 경험을 바탕으로, 서비스의 가용성을 높이기 위해 어떤 지표를 설정하고 관리했는지 구체적으로 설명해주세요.",
+      "ground_truth_chunk_id": "persona_e_devops_chunk_5",
+      "source": "persona_e_devops.md",
+      "rank": 1,
+      "hit": true,
+      "retrieved_ids": [
+        "persona_e_devops_chunk_5",
+        "persona_d_data_engineer_chunk_3",
+        "persona_b_frontend_react_chunk_4",
+        "persona_e_devops_chunk_0",
+        "persona_e_devops_chunk_6",
+        "persona_c_ml_engineer_chunk_3",
+        "persona_e_devops_chunk_2",
+        "persona_d_data_engineer_chunk_2"
+      ]
+    },
+    {
+      "question": "네트워크 정책을 최적화하기 위해 도입한 기술이나 도구에 대해 설명해주시고, 그로 인해 어떤 성과를 얻었는지 말씀해 주세요.",
+      "ground_truth_chunk_id": "persona_e_devops_chunk_6",
+      "source": "persona_e_devops.md",
+      "rank": 5,
+      "hit": true,
+      "retrieved_ids": [
+        "persona_f_fullstack_chunk_4",
+        "persona_e_devops_chunk_5",
+        "persona_b_frontend_react_chunk_4",
+        "persona_f_fullstack_chunk_5",
+        "persona_e_devops_chunk_6",
+        "persona_b_frontend_react_chunk_5",
+        "persona_d_data_engineer_chunk_3",
+        "persona_b_frontend_react_chunk_3"
+      ]
+    },
+    {
+      "question": "실시간 협업 도구를 개발하면서 동시 편집 기능을 구현하는 과정에서 직면했던 기술적 도전과 이를 해결하기 위해 사용한 접근 방식을 설명해주세요.",
+      "ground_truth_chunk_id": "persona_f_fullstack_chunk_0",
+      "source": "persona_f_fullstack.md",
+      "rank": 3,
+      "hit": true,
+      "retrieved_ids": [
+        "persona_f_fullstack_chunk_1",
+        "persona_b_frontend_react_chunk_4",
+        "persona_f_fullstack_chunk_0",
+        "persona_b_frontend_react_chunk_1",
+        "persona_f_fullstack_chunk_2",
+        "persona_d_data_engineer_chunk_1",
+        "persona_f_fullstack_chunk_5",
+        "persona_e_devops_chunk_5"
+      ]
+    },
+    {
+      "question": "실시간 동시 편집 시스템에서 데이터 충돌을 효과적으로 관리하기 위한 접근 방식에 대해 설명해주세요.",
+      "ground_truth_chunk_id": "persona_f_fullstack_chunk_1",
+      "source": "persona_f_fullstack.md",
+      "rank": 1,
+      "hit": true,
+      "retrieved_ids": [
+        "persona_f_fullstack_chunk_1",
+        "persona_d_data_engineer_chunk_1",
+        "persona_e_devops_chunk_5",
+        "persona_f_fullstack_chunk_2",
+        "persona_d_data_engineer_chunk_2",
+        "persona_a_backend_python_chunk_4",
+        "persona_d_data_engineer_chunk_4",
+        "persona_a_backend_python_chunk_1"
+      ]
+    },
+    {
+      "question": "N+1 문제를 해결하기 위해 사용한 접근 방식과 그로 인해 얻은 성과에 대해 설명해주세요.",
+      "ground_truth_chunk_id": "persona_f_fullstack_chunk_2",
+      "source": "persona_f_fullstack.md",
+      "rank": 1,
+      "hit": true,
+      "retrieved_ids": [
+        "persona_f_fullstack_chunk_2",
+        "persona_c_ml_engineer_chunk_5",
+        "persona_f_fullstack_chunk_5",
+        "persona_b_frontend_react_chunk_4",
+        "persona_a_backend_python_chunk_1",
+        "persona_b_frontend_react_chunk_2",
+        "persona_b_frontend_react_chunk_5",
+        "persona_d_data_engineer_chunk_5"
+      ]
+    },
+    {
+      "question": "토큰 기반 인증 시스템에서 보안성을 높이기 위해 어떤 전략을 사용했는지에 대해 설명해주세요.",
+      "ground_truth_chunk_id": "persona_f_fullstack_chunk_3",
+      "source": "persona_f_fullstack.md",
+      "rank": 2,
+      "hit": true,
+      "retrieved_ids": [
+        "persona_e_devops_chunk_6",
+        "persona_f_fullstack_chunk_3",
+        "persona_b_frontend_react_chunk_4",
+        "persona_f_fullstack_chunk_4",
+        "persona_b_frontend_react_chunk_3",
+        "persona_a_backend_python_chunk_3",
+        "persona_f_fullstack_chunk_5",
+        "persona_e_devops_chunk_5"
+      ]
+    },
+    {
+      "question": "서버리스 아키텍처를 활용하여 이미지 처리 작업을 최적화한 경험에 대해 설명해주세요.",
+      "ground_truth_chunk_id": "persona_f_fullstack_chunk_4",
+      "source": "persona_f_fullstack.md",
+      "rank": 1,
+      "hit": true,
+      "retrieved_ids": [
+        "persona_f_fullstack_chunk_4",
+        "persona_a_backend_python_chunk_4",
+        "persona_c_ml_engineer_chunk_3",
+        "persona_d_data_engineer_chunk_4",
+        "persona_d_data_engineer_chunk_3",
+        "persona_c_ml_engineer_chunk_4",
+        "persona_f_fullstack_chunk_2",
+        "persona_e_devops_chunk_2"
+      ]
+    },
+    {
+      "question": "데이터 모델링에서 쿼리 패턴을 고려할 때, 어떤 기준으로 데이터를 중첩하거나 참조하는 방식을 선택하셨는지에 대해 설명해주세요.",
+      "ground_truth_chunk_id": "persona_f_fullstack_chunk_5",
+      "source": "persona_f_fullstack.md",
+      "rank": 1,
+      "hit": true,
+      "retrieved_ids": [
+        "persona_f_fullstack_chunk_5",
+        "persona_c_ml_engineer_chunk_5",
+        "persona_d_data_engineer_chunk_5",
+        "persona_c_ml_engineer_chunk_1",
+        "persona_d_data_engineer_chunk_2",
+        "persona_c_ml_engineer_chunk_3",
+        "persona_d_data_engineer_chunk_4",
+        "persona_c_ml_engineer_chunk_4"
+      ]
+    }
+  ]
+}

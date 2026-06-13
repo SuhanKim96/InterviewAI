@@ -50,3 +50,55 @@ def total_chunks() -> int:
 
 def clear_documents() -> None:
     _vectorstore.reset_collection()
+
+
+_eval_vectorstore: Chroma | None = None
+
+
+def _get_eval_store() -> Chroma:
+    global _eval_vectorstore
+    if _eval_vectorstore is None:
+        _eval_vectorstore = Chroma(
+            collection_name="eval_documents",
+            embedding_function=_embeddings,
+            persist_directory="./chroma_db",
+        )
+    return _eval_vectorstore
+
+
+def search_eval(query: str, k: int = 5) -> list[tuple[str, str]]:
+    """eval_documents 컬렉션에서 검색. (chunk_id, text) 순위 순 반환."""
+    docs = _get_eval_store().similarity_search(query, k=k)
+    results = []
+    for doc in docs:
+        meta = doc.metadata
+        stem = meta.get("source", "").rsplit(".", 1)[0]
+        chunk_id = f"{stem}_chunk_{meta.get('chunk_index', 0)}"
+        results.append((chunk_id, doc.page_content))
+    return results
+
+
+_reranker = None
+
+
+def _get_reranker():
+    global _reranker
+    if _reranker is None:
+        from sentence_transformers import CrossEncoder  # lazy — 앱 기동 시 torch 로딩 방지
+        _reranker = CrossEncoder("BAAI/bge-reranker-base")
+    return _reranker
+
+
+def search_eval_reranked(
+    query: str, k: int = 5, k_initial: int = 20
+) -> list[tuple[str, str]]:
+    """vector search → cross-encoder reranking.
+    기존 search_eval()은 건드리지 않음 (baseline 비교용으로 유지).
+    """
+    candidates = search_eval(query, k=k_initial)
+    if not candidates:
+        return []
+    pairs = [(query, text) for _, text in candidates]
+    scores = _get_reranker().predict(pairs, show_progress_bar=False)
+    ranked = sorted(zip(scores, candidates), key=lambda x: x[0], reverse=True)
+    return [cand for _, cand in ranked[:k]]

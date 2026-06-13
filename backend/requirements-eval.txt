@@ -1,0 +1,4 @@
+# eval 전용 의존성 — 프로덕션 requirements.txt에 포함하지 말 것
+# torch/transformers는 Docker 이미지 크기를 크게 늘림 (~1GB+)
+# 사용: pip install -r requirements-eval.txt
+sentence-transformers>=2.7.0

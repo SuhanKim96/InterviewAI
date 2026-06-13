@@ -1,0 +1,973 @@
+{
+  "label": "judge_baseline",
+  "evaluator_temperature": 0.3,
+  "n_runs": 1,
+  "n_items": 50,
+  "n_labeled": 50,
+  "validity": {
+    "n_labeled": 50,
+    "per_axis": {
+      "clarity": {
+        "n": 50,
+        "exact_match_rate": 0.5,
+        "within_1_rate": 0.7,
+        "pearson_r": 0.6625,
+        "bias": 0.86,
+        "mean_judge": 2.86,
+        "mean_human": 2.0
+      },
+      "specific": {
+        "n": 50,
+        "exact_match_rate": 0.64,
+        "within_1_rate": 0.86,
+        "pearson_r": 0.8214,
+        "bias": 0.5,
+        "mean_judge": 2.32,
+        "mean_human": 1.82
+      },
+      "technical": {
+        "n": 50,
+        "exact_match_rate": 0.58,
+        "within_1_rate": 0.74,
+        "pearson_r": 0.752,
+        "bias": 0.74,
+        "mean_judge": 2.46,
+        "mean_human": 1.72
+      }
+    },
+    "per_answer_type": {
+      "average": {
+        "clarity": 3.857,
+        "specific": 3.571,
+        "technical": 3.286
+      },
+      "idk": {
+        "clarity": 1.0,
+        "specific": 1.0,
+        "technical": 1.0
+      },
+      "model": {
+        "clarity": 4.857,
+        "specific": 4.857,
+        "technical": 4.857
+      },
+      "off_topic": {
+        "clarity": 2.083,
+        "specific": 1.25,
+        "technical": 1.5
+      },
+      "verbose_empty": {
+        "clarity": 3.75,
+        "specific": 2.5,
+        "technical": 3.0
+      }
+    }
+  },
+  "reliability": {
+    "avg_std": null,
+    "max_std_item": null,
+    "high_variance_items": [],
+    "per_item": [
+      {
+        "id": "tech_idk_1",
+        "category": "technical",
+        "answer_type": "idk",
+        "mean_clarity": 1.0,
+        "mean_specific": 1.0,
+        "mean_technical": 1.0,
+        "std_clarity": null,
+        "std_specific": null,
+        "std_technical": null,
+        "runs": [
+          {
+            "score_clarity": 1,
+            "score_specific": 1,
+            "score_technical": 1
+          }
+        ]
+      },
+      {
+        "id": "tech_idk_2",
+        "category": "technical",
+        "answer_type": "idk",
+        "mean_clarity": 1.0,
+        "mean_specific": 1.0,
+        "mean_technical": 1.0,
+        "std_clarity": null,
+        "std_specific": null,
+        "std_technical": null,
+        "runs": [
+          {
+            "score_clarity": 1,
+            "score_specific": 1,
+            "score_technical": 1
+          }
+        ]
+      },
+      {
+        "id": "tech_idk_3",
+        "category": "technical",
+        "answer_type": "idk",
+        "mean_clarity": 1.0,
+        "mean_specific": 1.0,
+        "mean_technical": 1.0,
+        "std_clarity": null,
+        "std_specific": null,
+        "std_technical": null,
+        "runs": [
+          {
+            "score_clarity": 1,
+            "score_specific": 1,
+            "score_technical": 1
+          }
+        ]
+      },
+      {
+        "id": "tech_idk_4",
+        "category": "technical",
+        "answer_type": "idk",
+        "mean_clarity": 1.0,
+        "mean_specific": 1.0,
+        "mean_technical": 1.0,
+        "std_clarity": null,
+        "std_specific": null,
+        "std_technical": null,
+        "runs": [
+          {
+            "score_clarity": 1,
+            "score_specific": 1,
+            "score_technical": 1
+          }
+        ]
+      },
+      {
+        "id": "tech_off_1",
+        "category": "technical",
+        "answer_type": "off_topic",
+        "mean_clarity": 1.0,
+        "mean_specific": 1.0,
+        "mean_technical": 1.0,
+        "std_clarity": null,
+        "std_specific": null,
+        "std_technical": null,
+        "runs": [
+          {
+            "score_clarity": 1,
+            "score_specific": 1,
+            "score_technical": 1
+          }
+        ]
+      },
+      {
+        "id": "tech_off_2",
+        "category": "technical",
+        "answer_type": "off_topic",
+        "mean_clarity": 2.0,
+        "mean_specific": 1.0,
+        "mean_technical": 1.0,
+        "std_clarity": null,
+        "std_specific": null,
+        "std_technical": null,
+        "runs": [
+          {
+            "score_clarity": 2,
+            "score_specific": 1,
+            "score_technical": 1
+          }
+        ]
+      },
+      {
+        "id": "tech_off_3",
+        "category": "technical",
+        "answer_type": "off_topic",
+        "mean_clarity": 2.0,
+        "mean_specific": 1.0,
+        "mean_technical": 1.0,
+        "std_clarity": null,
+        "std_specific": null,
+        "std_technical": null,
+        "runs": [
+          {
+            "score_clarity": 2,
+            "score_specific": 1,
+            "score_technical": 1
+          }
+        ]
+      },
+      {
+        "id": "tech_off_4",
+        "category": "technical",
+        "answer_type": "off_topic",
+        "mean_clarity": 2.0,
+        "mean_specific": 2.0,
+        "mean_technical": 1.0,
+        "std_clarity": null,
+        "std_specific": null,
+        "std_technical": null,
+        "runs": [
+          {
+            "score_clarity": 2,
+            "score_specific": 2,
+            "score_technical": 1
+          }
+        ]
+      },
+      {
+        "id": "tech_ve_1",
+        "category": "technical",
+        "answer_type": "verbose_empty",
+        "mean_clarity": 5.0,
+        "mean_specific": 5.0,
+        "mean_technical": 5.0,
+        "std_clarity": null,
+        "std_specific": null,
+        "std_technical": null,
+        "runs": [
+          {
+            "score_clarity": 5,
+            "score_specific": 5,
+            "score_technical": 5
+          }
+        ]
+      },
+      {
+        "id": "tech_ve_2",
+        "category": "technical",
+        "answer_type": "verbose_empty",
+        "mean_clarity": 4.0,
+        "mean_specific": 3.0,
+        "mean_technical": 3.0,
+        "std_clarity": null,
+        "std_specific": null,
+        "std_technical": null,
+        "runs": [
+          {
+            "score_clarity": 4,
+            "score_specific": 3,
+            "score_technical": 3
+          }
+        ]
+      },
+      {
+        "id": "tech_ve_3",
+        "category": "technical",
+        "answer_type": "verbose_empty",
+        "mean_clarity": 4.0,
+        "mean_specific": 3.0,
+        "mean_technical": 3.0,
+        "std_clarity": null,
+        "std_specific": null,
+        "std_technical": null,
+        "runs": [
+          {
+            "score_clarity": 4,
+            "score_specific": 3,
+            "score_technical": 3
+          }
+        ]
+      },
+      {
+        "id": "tech_ve_4",
+        "category": "technical",
+        "answer_type": "verbose_empty",
+        "mean_clarity": 4.0,
+        "mean_specific": 4.0,
+        "mean_technical": 3.0,
+        "std_clarity": null,
+        "std_specific": null,
+        "std_technical": null,
+        "runs": [
+          {
+            "score_clarity": 4,
+            "score_specific": 4,
+            "score_technical": 3
+          }
+        ]
+      },
+      {
+        "id": "tech_model_1",
+        "category": "technical",
+        "answer_type": "model",
+        "mean_clarity": 5.0,
+        "mean_specific": 5.0,
+        "mean_technical": 5.0,
+        "std_clarity": null,
+        "std_specific": null,
+        "std_technical": null,
+        "runs": [
+          {
+            "score_clarity": 5,
+            "score_specific": 5,
+            "score_technical": 5
+          }
+        ]
+      },
+      {
+        "id": "tech_model_2",
+        "category": "technical",
+        "answer_type": "model",
+        "mean_clarity": 5.0,
+        "mean_specific": 5.0,
+        "mean_technical": 5.0,
+        "std_clarity": null,
+        "std_specific": null,
+        "std_technical": null,
+        "runs": [
+          {
+            "score_clarity": 5,
+            "score_specific": 5,
+            "score_technical": 5
+          }
+        ]
+      },
+      {
+        "id": "tech_model_3",
+        "category": "technical",
+        "answer_type": "model",
+        "mean_clarity": 4.0,
+        "mean_specific": 4.0,
+        "mean_technical": 4.0,
+        "std_clarity": null,
+        "std_specific": null,
+        "std_technical": null,
+        "runs": [
+          {
+            "score_clarity": 4,
+            "score_specific": 4,
+            "score_technical": 4
+          }
+        ]
+      },
+      {
+        "id": "tech_avg_1",
+        "category": "technical",
+        "answer_type": "average",
+        "mean_clarity": 4.0,
+        "mean_specific": 4.0,
+        "mean_technical": 3.0,
+        "std_clarity": null,
+        "std_specific": null,
+        "std_technical": null,
+        "runs": [
+          {
+            "score_clarity": 4,
+            "score_specific": 4,
+            "score_technical": 3
+          }
+        ]
+      },
+      {
+        "id": "tech_avg_2",
+        "category": "technical",
+        "answer_type": "average",
+        "mean_clarity": 3.0,
+        "mean_specific": 3.0,
+        "mean_technical": 2.0,
+        "std_clarity": null,
+        "std_specific": null,
+        "std_technical": null,
+        "runs": [
+          {
+            "score_clarity": 3,
+            "score_specific": 3,
+            "score_technical": 2
+          }
+        ]
+      },
+      {
+        "id": "tech_avg_3",
+        "category": "technical",
+        "answer_type": "average",
+        "mean_clarity": 4.0,
+        "mean_specific": 4.0,
+        "mean_technical": 3.0,
+        "std_clarity": null,
+        "std_specific": null,
+        "std_technical": null,
+        "runs": [
+          {
+            "score_clarity": 4,
+            "score_specific": 4,
+            "score_technical": 3
+          }
+        ]
+      },
+      {
+        "id": "exp_idk_1",
+        "category": "experience",
+        "answer_type": "idk",
+        "mean_clarity": 1.0,
+        "mean_specific": 1.0,
+        "mean_technical": 1.0,
+        "std_clarity": null,
+        "std_specific": null,
+        "std_technical": null,
+        "runs": [
+          {
+            "score_clarity": 1,
+            "score_specific": 1,
+            "score_technical": 1
+          }
+        ]
+      },
+      {
+        "id": "exp_idk_2",
+        "category": "experience",
+        "answer_type": "idk",
+        "mean_clarity": 1.0,
+        "mean_specific": 1.0,
+        "mean_technical": 1.0,
+        "std_clarity": null,
+        "std_specific": null,
+        "std_technical": null,
+        "runs": [
+          {
+            "score_clarity": 1,
+            "score_specific": 1,
+            "score_technical": 1
+          }
+        ]
+      },
+      {
+        "id": "exp_idk_3",
+        "category": "experience",
+        "answer_type": "idk",
+        "mean_clarity": 1.0,
+        "mean_specific": 1.0,
+        "mean_technical": 1.0,
+        "std_clarity": null,
+        "std_specific": null,
+        "std_technical": null,
+        "runs": [
+          {
+            "score_clarity": 1,
+            "score_specific": 1,
+            "score_technical": 1
+          }
+        ]
+      },
+      {
+        "id": "exp_idk_4",
+        "category": "experience",
+        "answer_type": "idk",
+        "mean_clarity": 1.0,
+        "mean_specific": 1.0,
+        "mean_technical": 1.0,
+        "std_clarity": null,
+        "std_specific": null,
+        "std_technical": null,
+        "runs": [
+          {
+            "score_clarity": 1,
+            "score_specific": 1,
+            "score_technical": 1
+          }
+        ]
+      },
+      {
+        "id": "exp_off_1",
+        "category": "experience",
+        "answer_type": "off_topic",
+        "mean_clarity": 1.0,
+        "mean_specific": 1.0,
+        "mean_technical": 1.0,
+        "std_clarity": null,
+        "std_specific": null,
+        "std_technical": null,
+        "runs": [
+          {
+            "score_clarity": 1,
+            "score_specific": 1,
+            "score_technical": 1
+          }
+        ]
+      },
+      {
+        "id": "exp_off_2",
+        "category": "experience",
+        "answer_type": "off_topic",
+        "mean_clarity": 3.0,
+        "mean_specific": 2.0,
+        "mean_technical": 2.0,
+        "std_clarity": null,
+        "std_specific": null,
+        "std_technical": null,
+        "runs": [
+          {
+            "score_clarity": 3,
+            "score_specific": 2,
+            "score_technical": 2
+          }
+        ]
+      },
+      {
+        "id": "exp_off_3",
+        "category": "experience",
+        "answer_type": "off_topic",
+        "mean_clarity": 1.0,
+        "mean_specific": 1.0,
+        "mean_technical": 1.0,
+        "std_clarity": null,
+        "std_specific": null,
+        "std_technical": null,
+        "runs": [
+          {
+            "score_clarity": 1,
+            "score_specific": 1,
+            "score_technical": 1
+          }
+        ]
+      },
+      {
+        "id": "exp_off_4",
+        "category": "experience",
+        "answer_type": "off_topic",
+        "mean_clarity": 2.0,
+        "mean_specific": 1.0,
+        "mean_technical": 1.0,
+        "std_clarity": null,
+        "std_specific": null,
+        "std_technical": null,
+        "runs": [
+          {
+            "score_clarity": 2,
+            "score_specific": 1,
+            "score_technical": 1
+          }
+        ]
+      },
+      {
+        "id": "exp_ve_1",
+        "category": "experience",
+        "answer_type": "verbose_empty",
+        "mean_clarity": 3.0,
+        "mean_specific": 1.0,
+        "mean_technical": 2.0,
+        "std_clarity": null,
+        "std_specific": null,
+        "std_technical": null,
+        "runs": [
+          {
+            "score_clarity": 3,
+            "score_specific": 1,
+            "score_technical": 2
+          }
+        ]
+      },
+      {
+        "id": "exp_ve_2",
+        "category": "experience",
+        "answer_type": "verbose_empty",
+        "mean_clarity": 3.0,
+        "mean_specific": 2.0,
+        "mean_technical": 3.0,
+        "std_clarity": null,
+        "std_specific": null,
+        "std_technical": null,
+        "runs": [
+          {
+            "score_clarity": 3,
+            "score_specific": 2,
+            "score_technical": 3
+          }
+        ]
+      },
+      {
+        "id": "exp_ve_3",
+        "category": "experience",
+        "answer_type": "verbose_empty",
+        "mean_clarity": 4.0,
+        "mean_specific": 3.0,
+        "mean_technical": 4.0,
+        "std_clarity": null,
+        "std_specific": null,
+        "std_technical": null,
+        "runs": [
+          {
+            "score_clarity": 4,
+            "score_specific": 3,
+            "score_technical": 4
+          }
+        ]
+      },
+      {
+        "id": "exp_ve_4",
+        "category": "experience",
+        "answer_type": "verbose_empty",
+        "mean_clarity": 3.0,
+        "mean_specific": 2.0,
+        "mean_technical": 2.0,
+        "std_clarity": null,
+        "std_specific": null,
+        "std_technical": null,
+        "runs": [
+          {
+            "score_clarity": 3,
+            "score_specific": 2,
+            "score_technical": 2
+          }
+        ]
+      },
+      {
+        "id": "exp_model_1",
+        "category": "experience",
+        "answer_type": "model",
+        "mean_clarity": 5.0,
+        "mean_specific": 5.0,
+        "mean_technical": 5.0,
+        "std_clarity": null,
+        "std_specific": null,
+        "std_technical": null,
+        "runs": [
+          {
+            "score_clarity": 5,
+            "score_specific": 5,
+            "score_technical": 5
+          }
+        ]
+      },
+      {
+        "id": "exp_model_2",
+        "category": "experience",
+        "answer_type": "model",
+        "mean_clarity": 5.0,
+        "mean_specific": 5.0,
+        "mean_technical": 5.0,
+        "std_clarity": null,
+        "std_specific": null,
+        "std_technical": null,
+        "runs": [
+          {
+            "score_clarity": 5,
+            "score_specific": 5,
+            "score_technical": 5
+          }
+        ]
+      },
+      {
+        "id": "exp_avg_1",
+        "category": "experience",
+        "answer_type": "average",
+        "mean_clarity": 3.0,
+        "mean_specific": 2.0,
+        "mean_technical": 2.0,
+        "std_clarity": null,
+        "std_specific": null,
+        "std_technical": null,
+        "runs": [
+          {
+            "score_clarity": 3,
+            "score_specific": 2,
+            "score_technical": 2
+          }
+        ]
+      },
+      {
+        "id": "exp_avg_2",
+        "category": "experience",
+        "answer_type": "average",
+        "mean_clarity": 4.0,
+        "mean_specific": 4.0,
+        "mean_technical": 4.0,
+        "std_clarity": null,
+        "std_specific": null,
+        "std_technical": null,
+        "runs": [
+          {
+            "score_clarity": 4,
+            "score_specific": 4,
+            "score_technical": 4
+          }
+        ]
+      },
+      {
+        "id": "cult_idk_1",
+        "category": "culture",
+        "answer_type": "idk",
+        "mean_clarity": 1.0,
+        "mean_specific": 1.0,
+        "mean_technical": 1.0,
+        "std_clarity": null,
+        "std_specific": null,
+        "std_technical": null,
+        "runs": [
+          {
+            "score_clarity": 1,
+            "score_specific": 1,
+            "score_technical": 1
+          }
+        ]
+      },
+      {
+        "id": "cult_idk_2",
+        "category": "culture",
+        "answer_type": "idk",
+        "mean_clarity": 1.0,
+        "mean_specific": 1.0,
+        "mean_technical": 1.0,
+        "std_clarity": null,
+        "std_specific": null,
+        "std_technical": null,
+        "runs": [
+          {
+            "score_clarity": 1,
+            "score_specific": 1,
+            "score_technical": 1
+          }
+        ]
+      },
+      {
+        "id": "cult_idk_3",
+        "category": "culture",
+        "answer_type": "idk",
+        "mean_clarity": 1.0,
+        "mean_specific": 1.0,
+        "mean_technical": 1.0,
+        "std_clarity": null,
+        "std_specific": null,
+        "std_technical": null,
+        "runs": [
+          {
+            "score_clarity": 1,
+            "score_specific": 1,
+            "score_technical": 1
+          }
+        ]
+      },
+      {
+        "id": "cult_idk_4",
+        "category": "culture",
+        "answer_type": "idk",
+        "mean_clarity": 1.0,
+        "mean_specific": 1.0,
+        "mean_technical": 1.0,
+        "std_clarity": null,
+        "std_specific": null,
+        "std_technical": null,
+        "runs": [
+          {
+            "score_clarity": 1,
+            "score_specific": 1,
+            "score_technical": 1
+          }
+        ]
+      },
+      {
+        "id": "cult_off_1",
+        "category": "culture",
+        "answer_type": "off_topic",
+        "mean_clarity": 2.0,
+        "mean_specific": 1.0,
+        "mean_technical": 2.0,
+        "std_clarity": null,
+        "std_specific": null,
+        "std_technical": null,
+        "runs": [
+          {
+            "score_clarity": 2,
+            "score_specific": 1,
+            "score_technical": 2
+          }
+        ]
+      },
+      {
+        "id": "cult_off_2",
+        "category": "culture",
+        "answer_type": "off_topic",
+        "mean_clarity": 2.0,
+        "mean_specific": 1.0,
+        "mean_technical": 2.0,
+        "std_clarity": null,
+        "std_specific": null,
+        "std_technical": null,
+        "runs": [
+          {
+            "score_clarity": 2,
+            "score_specific": 1,
+            "score_technical": 2
+          }
+        ]
+      },
+      {
+        "id": "cult_off_3",
+        "category": "culture",
+        "answer_type": "off_topic",
+        "mean_clarity": 4.0,
+        "mean_specific": 2.0,
+        "mean_technical": 3.0,
+        "std_clarity": null,
+        "std_specific": null,
+        "std_technical": null,
+        "runs": [
+          {
+            "score_clarity": 4,
+            "score_specific": 2,
+            "score_technical": 3
+          }
+        ]
+      },
+      {
+        "id": "cult_off_4",
+        "category": "culture",
+        "answer_type": "off_topic",
+        "mean_clarity": 3.0,
+        "mean_specific": 1.0,
+        "mean_technical": 2.0,
+        "std_clarity": null,
+        "std_specific": null,
+        "std_technical": null,
+        "runs": [
+          {
+            "score_clarity": 3,
+            "score_specific": 1,
+            "score_technical": 2
+          }
+        ]
+      },
+      {
+        "id": "cult_ve_1",
+        "category": "culture",
+        "answer_type": "verbose_empty",
+        "mean_clarity": 4.0,
+        "mean_specific": 2.0,
+        "mean_technical": 3.0,
+        "std_clarity": null,
+        "std_specific": null,
+        "std_technical": null,
+        "runs": [
+          {
+            "score_clarity": 4,
+            "score_specific": 2,
+            "score_technical": 3
+          }
+        ]
+      },
+      {
+        "id": "cult_ve_2",
+        "category": "culture",
+        "answer_type": "verbose_empty",
+        "mean_clarity": 4.0,
+        "mean_specific": 2.0,
+        "mean_technical": 3.0,
+        "std_clarity": null,
+        "std_specific": null,
+        "std_technical": null,
+        "runs": [
+          {
+            "score_clarity": 4,
+            "score_specific": 2,
+            "score_technical": 3
+          }
+        ]
+      },
+      {
+        "id": "cult_ve_3",
+        "category": "culture",
+        "answer_type": "verbose_empty",
+        "mean_clarity": 4.0,
+        "mean_specific": 2.0,
+        "mean_technical": 3.0,
+        "std_clarity": null,
+        "std_specific": null,
+        "std_technical": null,
+        "runs": [
+          {
+            "score_clarity": 4,
+            "score_specific": 2,
+            "score_technical": 3
+          }
+        ]
+      },
+      {
+        "id": "cult_ve_4",
+        "category": "culture",
+        "answer_type": "verbose_empty",
+        "mean_clarity": 3.0,
+        "mean_specific": 1.0,
+        "mean_technical": 2.0,
+        "std_clarity": null,
+        "std_specific": null,
+        "std_technical": null,
+        "runs": [
+          {
+            "score_clarity": 3,
+            "score_specific": 1,
+            "score_technical": 2
+          }
+        ]
+      },
+      {
+        "id": "cult_model_1",
+        "category": "culture",
+        "answer_type": "model",
+        "mean_clarity": 5.0,
+        "mean_specific": 5.0,
+        "mean_technical": 5.0,
+        "std_clarity": null,
+        "std_specific": null,
+        "std_technical": null,
+        "runs": [
+          {
+            "score_clarity": 5,
+            "score_specific": 5,
+            "score_technical": 5
+          }
+        ]
+      },
+      {
+        "id": "cult_model_2",
+        "category": "culture",
+        "answer_type": "model",
+        "mean_clarity": 5.0,
+        "mean_specific": 5.0,
+        "mean_technical": 5.0,
+        "std_clarity": null,
+        "std_specific": null,
+        "std_technical": null,
+        "runs": [
+          {
+            "score_clarity": 5,
+            "score_specific": 5,
+            "score_technical": 5
+          }
+        ]
+      },
+      {
+        "id": "cult_avg_1",
+        "category": "culture",
+        "answer_type": "average",
+        "mean_clarity": 5.0,
+        "mean_specific": 5.0,
+        "mean_technical": 5.0,
+        "std_clarity": null,
+        "std_specific": null,
+        "std_technical": null,
+        "runs": [
+          {
+            "score_clarity": 5,
+            "score_specific": 5,
+            "score_technical": 5
+          }
+        ]
+      },
+      {
+        "id": "cult_avg_2",
+        "category": "culture",
+        "answer_type": "average",
+        "mean_clarity": 4.0,
+        "mean_specific": 3.0,
+        "mean_technical": 4.0,
+        "std_clarity": null,
+        "std_specific": null,
+        "std_technical": null,
+        "runs": [
+          {
+            "score_clarity": 4,
+            "score_specific": 3,
+            "score_technical": 4
+          }
+        ]
+      }
+    ]
+  }
+}

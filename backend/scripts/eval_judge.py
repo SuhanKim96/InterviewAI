@@ -223,6 +223,53 @@ def print_validity(val: dict | None) -> None:
         print(f"  {atype:<16} {str(c):>8} {str(s):>9} {str(t):>10}")
 
 
+def print_comparison(base: dict, curr: dict, base_label: str, curr_label: str) -> None:
+    print(f"\n{'='*60}")
+    print(f"=== 비교: {base_label} → {curr_label} ===")
+    print(f"{'='*60}")
+
+    bv = base.get("validity") or {}
+    cv = curr.get("validity") or {}
+    if bv and cv:
+        bpa = bv.get("per_axis", {})
+        cpa = cv.get("per_axis", {})
+        print(f"\n  축             exact(전→후)     ±1(전→후)     bias(전→후)")
+        print("  " + "-" * 60)
+        for ax in ["clarity", "specific", "technical"]:
+            b, c = bpa.get(ax, {}), cpa.get(ax, {})
+            be = f"{b.get('exact_match_rate', 0):.0%}" if b else "-"
+            ce = f"{c.get('exact_match_rate', 0):.0%}" if c else "-"
+            bw = f"{b.get('within_1_rate', 0):.0%}" if b else "-"
+            cw = f"{c.get('within_1_rate', 0):.0%}" if c else "-"
+            bb = b.get('bias')
+            cb = c.get('bias')
+            bias_str = f"{f'{bb:+.2f}' if bb is not None else '-'}→{f'{cb:+.2f}' if cb is not None else '-'}"
+            print(f"  {ax:<14} {be}→{ce:<10}  {bw}→{cw:<10}  {bias_str}")
+
+        # Edge case comparison: verbose_empty all 3 axes + off_topic/idk/model/average clarity
+        bat = bv.get("per_answer_type", {})
+        cat = cv.get("per_answer_type", {})
+        print(f"\n  엣지 케이스 유형별 judge 점수 변화")
+        print(f"  {'유형':<16} {'축':<10} {'baseline':>9} {'→':>3} {'v2':>6}  {'Δ':>6}")
+        print("  " + "-" * 54)
+
+        # verbose_empty: all 3 axes
+        for ax in ["clarity", "specific", "technical"]:
+            b_score = bat.get("verbose_empty", {}).get(ax)
+            c_score = cat.get("verbose_empty", {}).get(ax)
+            delta = f"{c_score - b_score:+.3f}" if b_score is not None and c_score is not None else "-"
+            label = "verbose_empty" if ax == "clarity" else ""
+            print(f"  {label:<16} {ax:<10} {str(b_score):>9}   {str(c_score):>6}  {delta:>6}")
+
+        # off_topic / idk / model / average: clarity only
+        for atype in ["off_topic", "idk", "model", "average"]:
+            b_score = bat.get(atype, {}).get("clarity")
+            c_score = cat.get(atype, {}).get("clarity")
+            delta = f"{c_score - b_score:+.3f}" if b_score is not None and c_score is not None else "-"
+            note = " ← 기대: 유지" if atype in ("idk", "model") else ""
+            print(f"  {atype:<16} {'clarity':<10} {str(b_score):>9}   {str(c_score):>6}  {delta:>6}{note}")
+
+
 # ── Main ──────────────────────────────────────────────────────────────────────
 
 async def main_async(args: argparse.Namespace) -> None:
@@ -262,6 +309,14 @@ async def main_async(args: argparse.Namespace) -> None:
     out.write_text(json.dumps(output, ensure_ascii=False, indent=2), encoding="utf-8")
     print(f"\n저장 → {out}")
 
+    if args.compare:
+        compare_path = RESULTS_DIR / f"{args.compare}.json"
+        if compare_path.exists():
+            baseline = json.loads(compare_path.read_text(encoding="utf-8"))
+            print_comparison(baseline, output, args.compare, args.label)
+        else:
+            print(f"\n[경고] 비교 파일 없음: {compare_path}")
+
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="LLM Judge eval harness")
@@ -269,6 +324,7 @@ def main() -> None:
     parser.add_argument("--mode", choices=["all", "validity", "reliability"], default="all")
     parser.add_argument("--label", default="judge_baseline")
     parser.add_argument("--golden", default=str(GOLDEN_PATH))
+    parser.add_argument("--compare", default=None, help="비교할 기존 결과 라벨 (예: judge_n3)")
     args = parser.parse_args()
     asyncio.run(main_async(args))
 

@@ -12,7 +12,7 @@ export default function JDInput({ lang, onDone, onBack }) {
   const [role, setRole] = useState('')
   const [jdText, setJdText] = useState('')
   const [difficulty, setDifficulty] = useState(DIFFICULTIES[1])
-  const [types, setTypes] = useState(['technical', 'experience'])
+  const [types, setTypes] = useState([])
   const [count, setCount] = useState(3)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')

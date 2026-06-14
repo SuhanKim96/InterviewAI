@@ -48,6 +48,7 @@ class InterviewState(TypedDict):
 
     # 추가 컨텍스트
     types_used_counts: dict     # {"technical": 2, "experience": 1, "culture": 0}
+    language: str               # "ko" | "en"
 
     # 노드 출력
     eval_result: dict           # followup_node가 follow_up 필드를 추가
@@ -123,6 +124,7 @@ async def evaluator_node(state: InterviewState) -> dict:
         answer_text=state["answer_text"],
         category=state["current_category"],
         conversation_history=state["conversation_history"],
+        language=state.get("language", "ko"),
     )
     return {"eval_result": result}
 
@@ -138,7 +140,13 @@ async def followup_node(state: InterviewState) -> dict:
     if avg >= 4 or not weaknesses:
         return {"eval_result": {**ev, "follow_up": ""}}
 
-    chain = _FOLLOWUP_PROMPT | _get_followup_llm()
+    lang = state.get("language", "ko")
+    lang_prefix = "Respond in English.\n" if lang == "en" else ""
+    prompt = _FOLLOWUP_PROMPT if lang == "ko" else ChatPromptTemplate.from_messages([
+        ("system", lang_prefix + _FOLLOWUP_PROMPT.messages[0].prompt.template),
+        ("user",   _FOLLOWUP_PROMPT.messages[1].prompt.template),
+    ])
+    chain = prompt | _get_followup_llm()
     resp = await chain.ainvoke({
         "current_question": state["current_question"],
         "answer_text":      state["answer_text"],
@@ -210,10 +218,11 @@ async def _interviewer_node(state: InterviewState, category: str) -> dict:
         types=[category],
         count=1,
         conversation_history=state["conversation_history"],
+        language=state.get("language", "ko"),
     )
     items = result.get(category) or next((v for v in result.values() if v), [])
     q = items[0] if items else {
-        "question": f"다음 {category} 질문을 준비해주세요.",
+        "question": f"Please prepare the next {category} question." if state.get("language") == "en" else f"다음 {category} 질문을 준비해주세요.",
         "intent": None,
         "related_to": None,
     }
@@ -268,7 +277,7 @@ _graph = build_interview_graph()
 
 # ── Public Entry Point ────────────────────────────────────────────────────────
 
-async def run_turn(session, current_q, answer_text: str, db) -> tuple[dict, dict | None, bool]:
+async def run_turn(session, current_q, answer_text: str, db, language: str = "ko") -> tuple[dict, dict | None, bool]:
     """
     sessions.py /turn 엔드포인트에서 호출.
     반환: (eval_result, next_question_data | None, session_complete)
@@ -301,6 +310,7 @@ async def run_turn(session, current_q, answer_text: str, db) -> tuple[dict, dict
         current_category=current_q.category or "technical",
         answer_text=answer_text,
         types_used_counts=types_used_counts,
+        language=language,
         eval_result={},
         orchestrator_action="",
         next_question_data=None,

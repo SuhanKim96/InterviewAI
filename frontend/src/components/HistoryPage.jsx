@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react'
 import { getSessions, getHistory } from '../api.js'
 import GrowthChart from './GrowthChart.jsx'
+import { T } from '../strings.js'
 
 
-export default function HistoryPage({ onBack }) {
+export default function HistoryPage({ lang, onBack }) {
+  const t = T[lang]
   const [sessions, setSessions] = useState([])
   const [selectedId, setSelectedId] = useState(null)
   const [history, setHistory] = useState(null)
@@ -40,17 +42,16 @@ export default function HistoryPage({ onBack }) {
           <svg viewBox="0 0 16 16" fill="currentColor" className="w-3 h-3">
             <path fillRule="evenodd" d="M15 8a.5.5 0 00-.5-.5H2.707l3.147-3.146a.5.5 0 10-.708-.708l-4 4a.5.5 0 000 .708l4 4a.5.5 0 00.708-.708L2.707 8.5H14.5A.5.5 0 0015 8z" clipRule="evenodd" />
           </svg>
-          홈으로
+          {t.homeBack}
         </button>
-        <h2 className="text-xl font-bold text-gray-900 mb-1">성장 기록</h2>
-        <p className="text-sm text-gray-500">세션을 선택해 점수 추이와 약점 영역을 확인하세요.</p>
+        <h2 className="text-xl font-bold text-gray-900 mb-1">{t.historyTitle}</h2>
+        <p className="text-sm text-gray-500">{t.historyDesc}</p>
       </div>
 
       <div className="grid grid-cols-3 gap-5">
-        {/* Session list */}
         <div className="col-span-1 space-y-2">
           {sessions.length === 0 && (
-            <p className="text-sm text-gray-400 py-8 text-center">세션이 없습니다.</p>
+            <p className="text-sm text-gray-400 py-8 text-center">{t.noSessions}</p>
           )}
           {sessions.map((s) => (
             <button
@@ -64,31 +65,30 @@ export default function HistoryPage({ onBack }) {
             >
               <div className="flex items-center justify-between gap-2">
                 <p className="text-sm font-medium text-gray-800 truncate">
-                  {s.company || '회사명 없음'}
+                  {s.company || t.noCompany}
                   {s.role && <span className="text-gray-400 font-normal"> · {s.role}</span>}
                 </p>
                 {s.status === 'completed' && (
-                  <span className="text-xs text-indigo-400 font-medium shrink-0">완료</span>
+                  <span className="text-xs text-indigo-400 font-medium shrink-0">{t.completed}</span>
                 )}
               </div>
               <p className="text-xs text-gray-400 mt-0.5">
-                {new Date(s.created_at).toLocaleDateString('ko-KR')}
+                {new Date(s.created_at).toLocaleDateString(t.dateLocale)}
               </p>
             </button>
           ))}
         </div>
 
-        {/* Chart panel */}
         <div className="col-span-2">
           {!selectedId && (
             <div className="flex items-center justify-center h-48 text-sm text-gray-400 bg-white rounded-xl border border-gray-200">
-              좌측에서 세션을 선택하세요.
+              {t.selectSession}
             </div>
           )}
 
           {loading && (
             <div className="flex items-center justify-center h-48 text-sm text-gray-400 bg-white rounded-xl border border-gray-200">
-              불러오는 중...
+              {t.loadingHistory}
             </div>
           )}
 
@@ -104,7 +104,7 @@ export default function HistoryPage({ onBack }) {
                       <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
                     </svg>
                     <p className="text-sm text-amber-700">
-                      종합 점수가 가장 낮은 질문은 <span className="font-semibold">"{lowest.question.slice(0, 30)}{lowest.question.length > 30 ? '...' : ''}"</span> ({lowest.overall?.toFixed(1)}점)입니다. 이 질문 유형을 더 연습해보세요.
+                      {t.lowestPrefix}<span className="font-semibold">"{lowest.question.slice(0, 30)}{lowest.question.length > 30 ? '...' : ''}"</span>{t.lowestSuffix(lowest.overall?.toFixed(1))}
                     </p>
                   </div>
                 )
@@ -112,26 +112,25 @@ export default function HistoryPage({ onBack }) {
 
               {history.summary && (
                 <div className="bg-indigo-50 rounded-xl border border-indigo-100 p-5">
-                  <p className="text-xs font-semibold text-indigo-500 uppercase tracking-wide mb-2">종합 피드백</p>
+                  <p className="text-xs font-semibold text-indigo-500 uppercase tracking-wide mb-2">{t.overallFeedback}</p>
                   <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap">{history.summary}</p>
                 </div>
               )}
 
               <div className="bg-white rounded-xl border border-gray-200 p-5">
-                <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-4">점수 추이</p>
-                <GrowthChart data={history.score_trend} />
+                <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-4">{t.scoreTrend}</p>
+                <GrowthChart data={history.score_trend} lang={lang} />
               </div>
 
               <div className="bg-white rounded-xl border border-gray-200 divide-y divide-gray-100">
                 <div className="px-4 py-2 grid grid-cols-12 text-xs font-semibold text-gray-400 uppercase tracking-wide">
-                  <span className="col-span-1">#</span>
-                  <span className="col-span-1">유형</span>
-                  <span className="col-span-8">질문</span>
-                  <span className="col-span-2 text-right">종합</span>
+                  <span className="col-span-1">{t.colNum}</span>
+                  <span className="col-span-1">{t.colType}</span>
+                  <span className="col-span-8">{t.colQuestion}</span>
+                  <span className="col-span-2 text-right">{t.colOverall}</span>
                 </div>
                 {history.answers.map((a, i) => (
                   <div key={a.id}>
-                    {/* find lowest overall id for highlight */}
                     {(() => {
                       const lowestId = [...history.answers]
                         .filter(x => x.overall !== null)
@@ -148,7 +147,7 @@ export default function HistoryPage({ onBack }) {
                             a.category === 'culture'   ? 'bg-emerald-50 text-emerald-600' :
                                                          'bg-gray-100 text-gray-600'
                           }`}>
-                            {a.category === 'technical' ? '기술' : a.category === 'culture' ? '컬처핏' : '경험'}
+                            {t.categoryLabels[a.category] ?? a.category}
                           </span>
                           <p className="col-span-8 text-sm text-gray-700 truncate">{a.question}</p>
                           <span className={`col-span-2 text-xs text-right tabular-nums font-semibold ${isLowest ? 'text-amber-600' : 'text-gray-500'}`}>

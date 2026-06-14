@@ -7,6 +7,7 @@ import JDInput from './components/JDInput.jsx'
 import QuestionCard from './components/QuestionCard.jsx'
 import HistoryPage from './components/HistoryPage.jsx'
 import { getDocuments, finishSession } from './api.js'
+import { T } from './strings.js'
 
 export default function App() {
   const [step, setStep] = useState('landing')
@@ -16,6 +17,7 @@ export default function App() {
   const [answeredCount, setAnsweredCount] = useState(0)
   const [reportData, setReportData] = useState(null)
   const [finishing, setFinishing] = useState(false)
+  const [lang, setLang] = useState('ko')
 
   const restart = () => {
     setStep('landing')
@@ -26,9 +28,11 @@ export default function App() {
     setFinishing(false)
   }
 
+  const toggleLang = () => setLang(l => l === 'ko' ? 'en' : 'ko')
+
   const goHome = () => {
     if (step === 'interview') {
-      if (!window.confirm('면접이 진행 중입니다. 홈으로 돌아가면 진행 내용이 사라집니다.')) return
+      if (!window.confirm(T[lang].interviewInProgress)) return
     }
     restart()
   }
@@ -57,7 +61,7 @@ export default function App() {
         setReportData(report)
         setStep('done')
       } catch (e) {
-        alert('리포트 생성 중 오류가 발생했습니다: ' + e.message)
+        alert(lang === 'en' ? T[lang].reportError : T[lang].reportError + e.message)
       } finally {
         setFinishing(false)
       }
@@ -68,30 +72,31 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Navbar step={step} onHome={goHome} />
+      <Navbar step={step} onHome={goHome} lang={lang} onLangToggle={toggleLang} />
 
-      {step === 'landing' && <LandingPage onStart={handleStart} onHistory={() => setStep('history')} onDocuments={() => setStep('documents')} />}
+      {step === 'landing' && <LandingPage lang={lang} onStart={handleStart} onHistory={() => setStep('history')} onDocuments={() => setStep('documents')} />}
 
       {step === 'history' && (
         <main className="max-w-4xl mx-auto px-4 py-2">
-          <HistoryPage onBack={() => setStep('landing')} />
+          <HistoryPage lang={lang} onBack={() => setStep('landing')} />
         </main>
       )}
 
       {step === 'documents' && (
         <main className="max-w-3xl mx-auto px-4 py-2">
-          <DocumentsPage onBack={() => setStep('landing')} />
+          <DocumentsPage lang={lang} onBack={() => setStep('landing')} />
         </main>
       )}
 
       {step !== 'landing' && step !== 'history' && step !== 'documents' && (
         <main className="max-w-3xl mx-auto px-4 py-8">
           {step === 'upload' && (
-            <DocumentUpload onDone={() => setStep('jd')} onBack={() => setStep('landing')} />
+            <DocumentUpload lang={lang} onDone={() => setStep('jd')} onBack={() => setStep('landing')} />
           )}
 
           {step === 'jd' && (
             <JDInput
+              lang={lang}
               onBack={() => setStep('upload')}
               onDone={(sid, firstQuestion, total) => {
                 setSessionId(sid)
@@ -107,7 +112,7 @@ export default function App() {
             finishing ? (
               <div className="flex flex-col items-center py-20 gap-3">
                 <div className="w-8 h-8 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin" />
-                <p className="text-sm text-gray-500">종합 리포트를 생성하고 있습니다...</p>
+                <p className="text-sm text-gray-500">{T[lang].generatingReport}</p>
               </div>
             ) : (
               <QuestionCard
@@ -116,13 +121,14 @@ export default function App() {
                 sessionId={sessionId}
                 index={answeredCount}
                 total={totalPlanned}
+                lang={lang}
                 onTurnComplete={handleTurnComplete}
               />
             )
           )}
 
           {step === 'done' && reportData && (
-            <ReportPage report={reportData} onRestart={restart} />
+            <ReportPage report={reportData} lang={lang} onRestart={restart} />
           )}
         </main>
       )}
@@ -130,7 +136,8 @@ export default function App() {
   )
 }
 
-function ReportPage({ report, onRestart }) {
+function ReportPage({ report, lang, onRestart }) {
+  const t = T[lang]
   const answers = report.answers || []
 
   const validOveralls = answers.map(a => a.overall).filter(v => v != null)
@@ -145,25 +152,23 @@ function ReportPage({ report, onRestart }) {
   return (
     <div>
       <div className="py-10 border-b border-gray-100 mb-6">
-        <h2 className="text-xl font-bold text-gray-900 mb-1">세션 완료</h2>
+        <h2 className="text-xl font-bold text-gray-900 mb-1">{t.sessionComplete}</h2>
         <p className="text-sm text-gray-500">
-          {report.company && `${report.company} · `}{report.role && `${report.role} · `}{answers.length}개 질문 답변
+          {report.company && `${report.company} · `}{report.role && `${report.role} · `}{t.questionsAnswered(answers.length)}
         </p>
       </div>
 
-      {/* LLM 종합 리포트 */}
       {report.summary && (
         <div className="bg-indigo-50 rounded-xl border border-indigo-100 p-5 mb-5">
-          <h3 className="text-xs font-semibold text-indigo-500 uppercase tracking-wide mb-3">종합 피드백</h3>
+          <h3 className="text-xs font-semibold text-indigo-500 uppercase tracking-wide mb-3">{t.overallFeedback}</h3>
           <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap">{report.summary}</p>
         </div>
       )}
 
-      {/* Average score */}
       <div className="bg-white rounded-xl border border-gray-200 p-6 mb-5">
-        <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-4">평균 종합 점수</h3>
+        <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-4">{t.avgScore}</h3>
         <div className="flex items-center gap-3">
-          <span className="text-sm text-gray-500 w-20 shrink-0">종합</span>
+          <span className="text-sm text-gray-500 w-20 shrink-0">{t.overallScore}</span>
           <div className="flex-1 bg-gray-100 rounded-full h-1.5">
             <div className="h-1.5 rounded-full bg-indigo-500" style={{ width: `${overallPct}%` }} />
           </div>
@@ -171,7 +176,6 @@ function ReportPage({ report, onRestart }) {
         </div>
       </div>
 
-      {/* Per-question summary */}
       <div className="bg-white rounded-xl border border-gray-200 divide-y divide-gray-100 mb-8">
         {answers.map((a, i) => (
           <div key={a.id} className={`px-4 py-3 flex items-center gap-3 ${a.id === lowestId ? 'bg-amber-50' : ''}`}>
@@ -181,8 +185,7 @@ function ReportPage({ report, onRestart }) {
               a.category === 'culture'   ? 'bg-emerald-50 text-emerald-600' :
                                            'bg-gray-100 text-gray-600'
             }`}>
-              {a.category === 'technical' ? '기술' :
-               a.category === 'culture'   ? '컬처핏' : '경험'}
+              {t.categoryLabels[a.category] ?? a.category}
             </span>
             <p className="text-sm text-gray-700 flex-1 truncate">{a.question}</p>
             <span className={`text-xs shrink-0 tabular-nums font-semibold ${a.id === lowestId ? 'text-amber-600' : 'text-gray-400'}`}>
@@ -198,7 +201,7 @@ function ReportPage({ report, onRestart }) {
           onClick={onRestart}
           className="px-6 py-2.5 bg-indigo-600 text-white font-semibold rounded-lg hover:bg-indigo-700 text-sm transition-colors"
         >
-          새 세션 시작
+          {t.newSession}
         </button>
       </div>
     </div>

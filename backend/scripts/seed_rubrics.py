@@ -1,11 +1,17 @@
-"""루브릭 시드 스크립트 — 이미 시드됐으면 자동으로 건너뜀"""
+# Production deploy: run these BEFORE deploying new code
+#   docker compose exec db psql -U $POSTGRES_USER $POSTGRES_DB \
+#     -c "ALTER TABLE sessions ADD COLUMN IF NOT EXISTS language VARCHAR(5) DEFAULT 'ko';"
+#   docker compose exec backend python scripts/seed_rubrics.py
 import sys
 import os
+
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from services.rubrics import index_rubric, _rubric_store
 
-RUBRICS = [
+# ── Korean rubrics ─────────────────────────────────────────────────────────────
+
+RUBRICS_KO = [
     (
         "technical",
         "technical_rubric",
@@ -122,17 +128,142 @@ ORM 없이 raw SQL만 쓰자고 했고 저는 유지보수성 때문에 SQLAlche
     ),
 ]
 
+# ── English rubrics ────────────────────────────────────────────────────────────
+
+RUBRICS_EN = [
+    (
+        "technical",
+        "technical_rubric_en",
+        """[Technical Concept Answer Rubric]
+
+Clarity (1-5):
+- 5: Leads with the key concept, then explains the underlying principle
+- 3: Concept is correct but the explanation is disorganised or the main point comes late
+- 1: The concept itself is unclear or inaccurate
+
+Technical Accuracy (1-5):
+- 5: Real code example or a personal project application is included
+- 3: Concept is explained but examples remain abstract
+- 1: Definitions only, no examples
+
+Depth (1-5):
+- 5: Principles, trade-offs, and edge cases all accurately explained
+- 3: Mostly correct but minor errors or important edge cases missing
+- 1: Core concept is wrong
+
+Priority: For questions asking 'why', 'how', or 'what are the trade-offs',
+score rote-definition answers low (1) and principle-based explanations high (5)."""
+    ),
+    (
+        "example_technical",
+        "good_example_technical_en",
+        """[Good Technical Answer Example — few-shot]
+
+Question: "Explain the difference between FastAPI and Django and why you chose FastAPI."
+
+Good answer:
+"FastAPI is async-first, so it handles I/O-intensive work with higher throughput than Django.
+In our project we needed to call 10 external APIs concurrently; with Django's synchronous processing
+average response time was 3 seconds, but switching to FastAPI with asyncio.gather() brought it
+down to 0.8 seconds.
+The trade-off is that Django's batteries—ORM, Admin, built-in auth—are absent, so you have to
+build those yourself. For that reason FastAPI fits best when the API surface is limited,
+like an internal microservice."
+
+Scoring: direct opening, concrete numbers (3s → 0.8s), explicit trade-off, appropriate use-case → 5 points"""
+    ),
+    (
+        "example_technical",
+        "bad_example_technical_en",
+        """[Poor Technical Answer Example — few-shot]
+
+Question: "Explain the difference between FastAPI and Django and why you chose FastAPI."
+
+Poor answer:
+"FastAPI is fast and Django is heavy. FastAPI is trendy so I chose it."
+
+Scoring:
+- Clarity 1: no basis for 'fast' (async I/O, type hints not mentioned)
+- Technical Accuracy 1: no personal experience cited
+- Depth 2: not wrong, but zero explanation of principles
+- How to improve: explain WHY it's fast (async I/O), share numbers from your own project,
+  add trade-offs"""
+    ),
+    (
+        "experience",
+        "star_rubric_en",
+        """[Behavioural / Experience Question STAR Rubric]
+
+STAR structure:
+- Situation: Is the context specific? (when, where, team size, etc.)
+- Task: Is your role and responsibility clear?
+- Action: Are YOUR actions concrete? ('The team did X' is not enough)
+- Result: Is the outcome quantified? (performance X%, users N, etc.)
+
+Clarity (1-5):
+- 5: STAR structure is clear; leading with Result is a bonus
+- 3: Content exists but structure is messy
+- 1: Only lists the situation; no Action or Result
+
+Specificity (1-5):
+- 5: Numbers, timeframes, and personal contribution are explicit
+- 3: Qualitative description only, no numbers
+- 1: 'I worked hard' level
+
+Deductions: attributing team results to yourself; describing actions without any outcome"""
+    ),
+    (
+        "example_experience",
+        "good_example_experience_en",
+        """[Good Experience Answer Example — few-shot]
+
+Question: "Tell me about a time you resolved a technical conflict within a team."
+
+Good answer:
+"(Result first) We shipped on schedule with zero tech debt left over.
+(Situation) I was the backend lead on a 4-person team. A teammate wanted to use raw SQL
+for speed; I preferred SQLAlchemy for maintainability.
+(Task) We had two weeks until the deadline and needed to reach agreement quickly.
+(Action) I built prototypes of the same feature in both approaches and compared response
+time and line count. SQLAlchemy was 5 ms slower but cut the codebase by 40%.
+The data convinced my teammate, and we adopted a hybrid approach—SQLAlchemy everywhere
+except the few hot paths where raw SQL was justified."
+
+Scoring: leads with Result, personal Action explicit, numbers (5 ms, 40%) → 5 points"""
+    ),
+    (
+        "example_experience",
+        "bad_example_experience_en",
+        """[Poor Experience Answer Example — few-shot]
+
+Question: "Tell me about a time you resolved a technical conflict within a team."
+
+Poor answer:
+"We disagreed on the tech choice but talked it through and resolved it.
+I learned that teamwork is important."
+
+Scoring:
+- Specificity 1: Action is 'talked it through'—personal contribution unclear
+- No Result: 'resolved it' is qualitative only
+- STAR unmet: Situation / Task / Action / Result all superficial
+- How to improve: name the technology dispute, explain what data or argument you used
+  to persuade, state the quantifiable outcome"""
+    ),
+]
+
 
 def main() -> None:
-    existing = _rubric_store.get()
-    if len(existing["ids"]) >= len(RUBRICS):
-        print(f"루브릭이 이미 인덱싱됨 ({len(existing['ids'])}개). 건너뜁니다.")
-        return
-    print(f"루브릭 {len(RUBRICS)}개 인덱싱 시작...")
-    for category, name, text in RUBRICS:
-        index_rubric(text, category=category, name=name)
-        print(f"  ✓ {name} ({category})")
-    print("완료.")
+    print("루브릭 컬렉션 초기화 후 ko + en 재시드...")
+    _rubric_store.reset_collection()
+
+    all_rubrics = [(cat, name, text, "ko") for cat, name, text in RUBRICS_KO] + \
+                  [(cat, name, text, "en") for cat, name, text in RUBRICS_EN]
+
+    for category, name, text, lang in all_rubrics:
+        index_rubric(text, category=category, name=name, language=lang)
+        print(f"  ✓ [{lang}] {name}")
+
+    print(f"\n완료: {len(all_rubrics)}개 루브릭 인덱싱 (ko={len(RUBRICS_KO)}, en={len(RUBRICS_EN)})")
 
 
 if __name__ == "__main__":

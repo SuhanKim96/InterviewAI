@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { submitFollowUp } from '../api.js'
+import { T } from '../strings.js'
 
 function ScoreRow({ label, score }) {
   const pct = ((score ?? 0) / 5) * 100
@@ -25,14 +26,9 @@ function Section({ label, children }) {
   )
 }
 
-const SCORE_LABELS = {
-  technical:  ['명확성', '기술 정확성', '깊이'],
-  experience: ['명확성', '구체성', '결과'],
-  culture:    ['명확성', '진정성', '가치관 적합성'],
-}
-
-export default function AnswerFeedback({ feedback, question, category, onNext, isLast }) {
-  const labels = SCORE_LABELS[category] ?? ['명확성', '구체성', '기술 정확성']
+export default function AnswerFeedback({ feedback, question, category, lang, onNext, isLast }) {
+  const t = T[lang]
+  const labels = (t.scoreLabels[category] ?? t.scoreLabels.technical)
   const [visible, setVisible] = useState(false)
   const [showRubric, setShowRubric] = useState(false)
   const [followUpAnswer, setFollowUpAnswer] = useState('')
@@ -41,8 +37,8 @@ export default function AnswerFeedback({ feedback, question, category, onNext, i
   const [followUpError, setFollowUpError] = useState('')
 
   useEffect(() => {
-    const t = setTimeout(() => setVisible(true), 30)
-    return () => clearTimeout(t)
+    const timer = setTimeout(() => setVisible(true), 30)
+    return () => clearTimeout(timer)
   }, [])
 
   const scores = [feedback.score_clarity, feedback.score_specific, feedback.score_technical].filter(Boolean)
@@ -70,13 +66,12 @@ export default function AnswerFeedback({ feedback, question, category, onNext, i
     <div
       className={`mt-6 pt-6 border-t border-gray-100 space-y-5 transition-opacity duration-300 ${visible ? 'opacity-100' : 'opacity-0'}`}
     >
-      {/* Scores */}
       <div>
         <div className="flex items-center justify-between mb-3">
-          <span className="text-sm font-semibold text-gray-700">평가 점수</span>
+          <span className="text-sm font-semibold text-gray-700">{t.scoreTitle}</span>
           {overall && (
             <span className="text-xs text-gray-500">
-              종합 <span className="font-bold text-gray-800">{overall}</span> / 5
+              {t.overallLabel} <span className="font-bold text-gray-800">{overall}</span> / 5
             </span>
           )}
         </div>
@@ -87,19 +82,18 @@ export default function AnswerFeedback({ feedback, question, category, onNext, i
         </div>
       </div>
 
-      {feedback.strengths && <Section label="강점">{feedback.strengths}</Section>}
-      {feedback.weaknesses && <Section label="개선점">{feedback.weaknesses}</Section>}
+      {feedback.strengths && <Section label={t.strengths}>{feedback.strengths}</Section>}
+      {feedback.weaknesses && <Section label={t.weaknesses}>{feedback.weaknesses}</Section>}
       {feedback.improved_answer && (
-        <Section label="모범 답안 예시">
+        <Section label={t.modelAnswer}>
           <span className="whitespace-pre-wrap">{feedback.improved_answer}</span>
         </Section>
       )}
 
-      {/* Follow-up */}
       {feedback.follow_up && (
         <div className="space-y-2">
           <div className="pl-3 border-l-2 border-indigo-300 bg-indigo-50 py-2 rounded-r-md">
-            <p className="text-xs font-semibold text-indigo-600 uppercase tracking-wide mb-1">꼬리질문</p>
+            <p className="text-xs font-semibold text-indigo-600 uppercase tracking-wide mb-1">{t.followUpLabel}</p>
             <p className="text-sm text-indigo-800 leading-relaxed">{feedback.follow_up}</p>
           </div>
 
@@ -110,10 +104,10 @@ export default function AnswerFeedback({ feedback, question, category, onNext, i
                   rows={3}
                   value={followUpAnswer}
                   onChange={(e) => setFollowUpAnswer(e.target.value)}
-                  placeholder="꼬리질문에 답변하세요..."
+                  placeholder={t.followUpPlaceholder}
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-y"
                 />
-                <span className="absolute bottom-2 right-3 text-xs text-gray-300 pointer-events-none">{followUpAnswer.length}자</span>
+                <span className="absolute bottom-2 right-3 text-xs text-gray-300 pointer-events-none">{t.charCount(followUpAnswer.length)}</span>
               </div>
               {followUpError && <p className="text-red-500 text-xs mb-2">{followUpError}</p>}
               <button
@@ -121,12 +115,12 @@ export default function AnswerFeedback({ feedback, question, category, onNext, i
                 disabled={followUpLoading || !followUpAnswer.trim()}
                 className="px-4 py-1.5 bg-indigo-100 text-indigo-700 text-xs font-semibold rounded-lg hover:bg-indigo-200 disabled:opacity-50 transition-colors"
               >
-                {followUpLoading ? '평가 중...' : '답변 제출'}
+                {followUpLoading ? t.followUpEvaluating : t.followUpSubmit}
               </button>
             </div>
           ) : (
             <div className="pl-3 border-l-2 border-gray-200">
-              <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1">꼬리질문 피드백</p>
+              <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1">{t.followUpFeedbackLabel}</p>
               <p className="text-sm text-gray-700 leading-relaxed">{followUpComment}</p>
             </div>
           )}
@@ -136,7 +130,7 @@ export default function AnswerFeedback({ feedback, question, category, onNext, i
       {feedback.rubric_basis && (
         <div>
           <button onClick={() => setShowRubric(r => !r)} className="text-xs text-gray-400 hover:text-gray-600 transition-colors">
-            {showRubric ? '채점 근거 숨기기 ↑' : '채점 근거 보기 ↓'}
+            {showRubric ? t.hideRubric : t.showRubric}
           </button>
           {showRubric && (
             <div className="mt-2 text-xs text-gray-500 leading-relaxed bg-gray-50 rounded-md px-3 py-2.5 border border-gray-200">
@@ -150,7 +144,7 @@ export default function AnswerFeedback({ feedback, question, category, onNext, i
         onClick={onNext}
         className="w-full py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold rounded-lg transition-colors"
       >
-        {isLast ? '결과 보기' : '다음 질문'}
+        {isLast ? t.viewResults : t.nextQuestion}
       </button>
     </div>
   )

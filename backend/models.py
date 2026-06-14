@@ -18,6 +18,7 @@ class Session(Base):
     difficulty: Mapped[str | None] = mapped_column(String(20))
     types_json: Mapped[str | None] = mapped_column(Text)
     total_planned: Mapped[int | None] = mapped_column(Integer)
+    language: Mapped[str] = mapped_column(String(5), server_default="ko")
 
     questions: Mapped[list["Question"]] = relationship(back_populates="session", cascade="all, delete")
 

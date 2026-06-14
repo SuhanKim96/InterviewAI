@@ -32,6 +32,22 @@ _PROMPT = ChatPromptTemplate.from_messages([
      '아래 JSON 형식만 반환하세요:\n{{"answer":"담당자 답변"}}')
 ])
 
+_PROMPT_EN = ChatPromptTemplate.from_messages([
+    ("system", "You are a recruiter at {company} for the {role} position. "
+               "Answer the candidate's questions naturally, as a real recruiter would. "
+               "Use information revealed in the JD; do not invent details you are not certain about.\n"
+               "If the candidate is asking for clarification on the current interview question's intent or scope, "
+               "briefly explain what the question is asking in 2-3 sentences. "
+               "Do NOT reveal the answer to the interview question. "
+               "The purpose is to clarify context and scope, not to give away the answer.\n"
+               "Return JSON only. No other text."),
+    ("user",
+     "## Job Description\n{jd_text}\n\n"
+     "## Current Interview Question\n{current_interview_question}\n\n"
+     "## Candidate's Question\n{question}\n\n"
+     'Return only the following JSON:\n{{"answer":"recruiter answer"}}')
+])
+
 
 @router.post("", response_model=AskResponse)
 async def ask_interviewer(body: AskRequest, db: AsyncSession = Depends(get_db)):
@@ -39,12 +55,14 @@ async def ask_interviewer(body: AskRequest, db: AsyncSession = Depends(get_db)):
     if not session:
         raise HTTPException(status_code=404, detail="세션을 찾을 수 없습니다.")
     try:
-        chain = _PROMPT | _llm
+        lang = session.language or "ko"
+        prompt = _PROMPT_EN if lang == "en" else _PROMPT
+        chain = prompt | _llm
         response = await chain.ainvoke({
-            "company": session.company or "회사",
-            "role": session.role or "개발자",
+            "company": session.company or ("Company" if lang == "en" else "회사"),
+            "role": session.role or ("Developer" if lang == "en" else "개발자"),
             "jd_text": session.jd_text,
-            "current_interview_question": body.current_interview_question or "정보 없음",
+            "current_interview_question": body.current_interview_question or ("N/A" if lang == "en" else "정보 없음"),
             "question": body.question,
         })
         raw = _STRIP_RE.sub("", response.content).strip()

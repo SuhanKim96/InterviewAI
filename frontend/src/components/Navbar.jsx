@@ -1,6 +1,7 @@
 import Stepper from './Stepper.jsx'
+import { T } from '../strings.js'
 
-export default function Navbar({ step, onHome }) {
+export default function Navbar({ step, onHome, lang, onLangToggle }) {
   const showStepper = step !== 'landing'
 
   return (
@@ -16,11 +17,15 @@ export default function Navbar({ step, onHome }) {
         </div>
         <span className="font-semibold text-gray-900 text-sm">InterviewAI</span>
       </div>
-      {showStepper && (
-        <div className="ml-auto">
-          <Stepper step={step} />
-        </div>
-      )}
+      <div className="ml-auto flex items-center gap-3">
+        {showStepper && <Stepper step={step} lang={lang} />}
+        <button
+          onClick={onLangToggle}
+          className="text-xs font-semibold text-gray-500 hover:text-indigo-600 border border-gray-200 hover:border-indigo-300 rounded-md px-2.5 py-1 transition-colors"
+        >
+          {T[lang].langToggle}
+        </button>
+      </div>
     </nav>
   )
 }

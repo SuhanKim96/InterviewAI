@@ -28,6 +28,25 @@ _COMMON_SYSTEM = (
     "- JSON 외 텍스트 출력 금지."
 )
 
+_COMMON_SYSTEM_EN = (
+    "You are a fair technical interview evaluator. Follow these rules strictly.\n"
+    "- Base your scores on the provided rubric; specify in rubric_basis which criteria you applied.\n"
+    "- Be constructive: always suggest improvements when pointing out weaknesses.\n"
+    "- improved_answer must stay within the candidate's stated experience (do not invent experiences). "
+    "2-3 natural spoken sentences only. No code blocks, markdown, or bullet lists.\n"
+    "- If the answer contains no substantive content ('I don't know', 'I'm not sure', one or two words, etc.) "
+    "score all axes 1.\n"
+    "- The only basis for a score is concrete content: specific facts, real examples, numbers, actions the "
+    "candidate actually took. Answer length, fluency, confident tone, and buzzword count are NOT scoring criteria.\n"
+    "- A long answer with no substance (buzzwords, generalities, platitudes, definitions only) scores 1-2 "
+    "regardless of length or fluency.\n"
+    "- clarity measures whether the answer actually addresses the question — not whether it is well-phrased. "
+    "An off-topic answer scores 1-2 even if articulate.\n"
+    "- A long answer that is also substantive (principle + example + number) retains a high score. "
+    "Length alone is never penalized.\n"
+    "- Return JSON only. No other text."
+)
+
 _AXIS_INSTRUCTIONS: dict[str, str] = {
     "technical": (
         "## 평가 축\n"
@@ -50,6 +69,32 @@ _AXIS_INSTRUCTIONS: dict[str, str] = {
     ),
 }
 
+_AXIS_INSTRUCTIONS_EN: dict[str, str] = {
+    "technical": (
+        "## Scoring Axes\n"
+        "- score_clarity (1-5): Clarity — does the answer deliver the key point logically?\n"
+        "- score_specific (1-5): Technical accuracy — accuracy of the technical content actually stated. "
+        "Evaluate only what the candidate said, not their resume level. No technical content = 1.\n"
+        "- score_technical (1-5): Depth — does the answer demonstrate understanding of principles, "
+        "trade-offs, and limitations?"
+    ),
+    "experience": (
+        "## Scoring Axes\n"
+        "- score_clarity (1-5): Clarity — is the Situation / Action / Result structure clear?\n"
+        "- score_specific (1-5): Specificity — are concrete numbers, situations, and the candidate's "
+        "own role explicitly stated?\n"
+        "- score_technical (1-5): Result — are the outcome and lessons learned clearly articulated?"
+    ),
+    "culture": (
+        "## Scoring Axes\n"
+        "- score_clarity (1-5): Clarity — is the candidate's value expressed logically?\n"
+        "- score_specific (1-5): Authenticity — is the answer grounded in real experience or a "
+        "concrete example?\n"
+        "- score_technical (1-5): Value alignment — does the answer align with the company culture "
+        "and values apparent in the JD?"
+    ),
+}
+
 _USER_TEMPLATE = (
     "## 질문\n{question}\n\n"
     "## 지원자 답변\n{answer_text}\n\n"
@@ -63,30 +108,62 @@ _USER_TEMPLATE = (
     '"rubric_basis":"어떤 루브릭 기준으로 채점했는지"}}'
 )
 
+_USER_TEMPLATE_EN = (
+    "## Question\n{question}\n\n"
+    "## Candidate Answer\n{answer_text}\n\n"
+    "## Relevant Resume / Experience (reference only)\n{experience_chunks}\n\n"
+    "## Evaluation Rubric (score against this)\n{rubric_chunks}\n\n"
+    "## Prior Conversation (reference only)\n{conversation_history}\n\n"
+    "Consider consistency with prior answers and whether earlier topics warrant deeper exploration.\n\n"
+    "Return only the following JSON:\n"
+    '{{"score_clarity":1-5,"score_specific":1-5,"score_technical":1-5,'
+    '"strengths":"...","weaknesses":"...","improved_answer":"...",'
+    '"rubric_basis":"which rubric criteria were applied"}}'
+)
+
 _STRIP_RE = re.compile(r"^```(?:json)?\s*|\s*```$", re.MULTILINE)
 
 
-def _build_prompt(category: str) -> ChatPromptTemplate:
-    axis = _AXIS_INSTRUCTIONS.get(category, _AXIS_INSTRUCTIONS["technical"])
-    system = f"{_COMMON_SYSTEM}\n\n{axis}"
-    return ChatPromptTemplate.from_messages([
-        ("system", system),
-        ("user", _USER_TEMPLATE),
-    ])
+def _build_prompt(category: str, language: str = "ko") -> ChatPromptTemplate:
+    if language == "en":
+        axis = _AXIS_INSTRUCTIONS_EN.get(category, _AXIS_INSTRUCTIONS_EN["technical"])
+        system = f"{_COMMON_SYSTEM_EN}\n\n{axis}"
+        user = _USER_TEMPLATE_EN
+    else:
+        axis = _AXIS_INSTRUCTIONS.get(category, _AXIS_INSTRUCTIONS["technical"])
+        system = f"{_COMMON_SYSTEM}\n\n{axis}"
+        user = _USER_TEMPLATE
+    return ChatPromptTemplate.from_messages([("system", system), ("user", user)])
 
 
-async def evaluate(question: str, answer_text: str, category: str, conversation_history: str = "") -> dict:
+async def evaluate(
+    question: str,
+    answer_text: str,
+    category: str,
+    conversation_history: str = "",
+    language: str = "ko",
+) -> dict:
     experience_chunks = rag.search(question, k=5)
-    rubric_chunks = rubrics.search_rubrics(question, category, k=3)
+    rubric_chunks = rubrics.search_rubrics(question, category, k=3, language=language)
 
-    prompt = _build_prompt(category)
+    prompt = _build_prompt(category, language)
     chain = prompt | _llm
+
+    if language == "en":
+        exp_fallback = "No resume content indexed"
+        rub_fallback = "No rubric found (run seed_rubrics.py)"
+        hist_fallback = "No prior answers"
+    else:
+        exp_fallback = "검색된 경험 없음"
+        rub_fallback = "루브릭 없음 (seed_rubrics.py 실행 필요)"
+        hist_fallback = "이전 답변 없음"
+
     response = await chain.ainvoke({
         "question": question,
         "answer_text": answer_text,
-        "experience_chunks": "\n---\n".join(experience_chunks) if experience_chunks else "검색된 경험 없음",
-        "rubric_chunks": "\n---\n".join(rubric_chunks) if rubric_chunks else "루브릭 없음 (seed_rubrics.py 실행 필요)",
-        "conversation_history": conversation_history or "이전 답변 없음",
+        "experience_chunks": "\n---\n".join(experience_chunks) if experience_chunks else exp_fallback,
+        "rubric_chunks": "\n---\n".join(rubric_chunks) if rubric_chunks else rub_fallback,
+        "conversation_history": conversation_history or hist_fallback,
     })
 
     raw = _STRIP_RE.sub("", response.content).strip()

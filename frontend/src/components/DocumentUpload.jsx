@@ -1,5 +1,6 @@
 import { useState, useRef } from 'react'
 import { uploadDocuments } from '../api.js'
+import { T } from '../strings.js'
 
 function formatBytes(bytes) {
   return bytes < 1024 * 1024
@@ -7,7 +8,8 @@ function formatBytes(bytes) {
     : `${(bytes / 1024 / 1024).toFixed(1)} MB`
 }
 
-export default function DocumentUpload({ onDone, onBack }) {
+export default function DocumentUpload({ lang, onDone, onBack }) {
+  const t = T[lang]
   const [files, setFiles] = useState([])
   const [dragging, setDragging] = useState(false)
   const [portfolioText, setPortfolioText] = useState('')
@@ -18,7 +20,7 @@ export default function DocumentUpload({ onDone, onBack }) {
 
   const addFiles = (incoming) => {
     const pdfs = Array.from(incoming).filter(f => f.type === 'application/pdf')
-    if (pdfs.length < incoming.length) setError('PDF 파일만 업로드 가능합니다.')
+    if (pdfs.length < incoming.length) setError(t.errPdfOnly)
     else setError('')
     setFiles(prev => {
       const names = new Set(prev.map(f => f.name))
@@ -36,7 +38,7 @@ export default function DocumentUpload({ onDone, onBack }) {
 
   const handleSubmit = async () => {
     if (files.length === 0 && !portfolioText.trim()) {
-      setError('PDF 또는 포트폴리오 텍스트 중 하나는 필요합니다.')
+      setError(t.errNeedDoc)
       return
     }
     setLoading(true)
@@ -48,7 +50,7 @@ export default function DocumentUpload({ onDone, onBack }) {
       const data = await uploadDocuments(fd)
       setResult(data)
     } catch (e) {
-      setError(e.message)
+      setError(lang === 'en' ? t.errGeneric : e.message)
     } finally {
       setLoading(false)
     }
@@ -59,13 +61,12 @@ export default function DocumentUpload({ onDone, onBack }) {
       {onBack && (
         <button onClick={onBack} className="flex items-center gap-1 text-xs text-gray-400 hover:text-gray-600 mb-4 transition-colors">
           <svg viewBox="0 0 16 16" fill="currentColor" className="w-3 h-3"><path fillRule="evenodd" d="M15 8a.5.5 0 00-.5-.5H2.707l3.147-3.146a.5.5 0 10-.708-.708l-4 4a.5.5 0 000 .708l4 4a.5.5 0 00.708-.708L2.707 8.5H14.5A.5.5 0 0015 8z" clipRule="evenodd"/></svg>
-          이전
+          {t.back}
         </button>
       )}
-      <h2 className="text-base font-semibold text-gray-900 mb-1">문서 업로드</h2>
-      <p className="text-sm text-gray-500 mb-6">이력서와 포트폴리오를 분석해 맞춤 질문 생성에 활용합니다.</p>
+      <h2 className="text-base font-semibold text-gray-900 mb-1">{t.uploadTitle}</h2>
+      <p className="text-sm text-gray-500 mb-6">{t.uploadDesc}</p>
 
-      {/* Drop zone */}
       <div
         onClick={() => inputRef.current?.click()}
         onDragOver={(e) => { e.preventDefault(); setDragging(true) }}
@@ -85,11 +86,10 @@ export default function DocumentUpload({ onDone, onBack }) {
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" className="w-7 h-7 mx-auto mb-2 text-gray-400">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
         </svg>
-        <p className="text-sm font-medium text-gray-600">이력서/포트폴리오 PDF를 끌어놓거나 클릭하세요</p>
-        <p className="text-xs text-gray-400 mt-1">여러 파일 동시 선택 가능</p>
+        <p className="text-sm font-medium text-gray-600">{t.dropZoneText}</p>
+        <p className="text-xs text-gray-400 mt-1">{t.dropZoneHint}</p>
       </div>
 
-      {/* File list */}
       {files.length > 0 && (
         <div className="space-y-1.5 mb-4">
           {files.map((f) => (
@@ -111,13 +111,13 @@ export default function DocumentUpload({ onDone, onBack }) {
 
       <div className="mb-6">
         <label className="block text-sm font-medium text-gray-700 mb-1">
-          포트폴리오 텍스트 <span className="text-gray-400 font-normal">(선택)</span>
+          {t.portfolioLabel} <span className="text-gray-400 font-normal">{t.optional}</span>
         </label>
         <textarea
           rows={4}
           value={portfolioText}
           onChange={(e) => setPortfolioText(e.target.value)}
-          placeholder="GitHub 링크, 프로젝트 설명 등을 붙여넣으세요..."
+          placeholder={t.portfolioPlaceholder}
           className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none"
         />
       </div>
@@ -130,7 +130,7 @@ export default function DocumentUpload({ onDone, onBack }) {
             <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
           </svg>
           <div>
-            <p className="text-sm font-medium text-gray-800">분석 완료</p>
+            <p className="text-sm font-medium text-gray-800">{t.analysisDone}</p>
             {result.indexed_files.length > 0 && (
               <p className="text-xs text-gray-500 mt-0.5">{result.indexed_files.join(', ')}</p>
             )}
@@ -147,14 +147,14 @@ export default function DocumentUpload({ onDone, onBack }) {
           disabled={loading}
           className="px-5 py-2 bg-indigo-600 text-white text-sm font-semibold rounded-lg hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
         >
-          {loading ? '분석 중...' : '분석 시작'}
+          {loading ? t.analyzing : t.startAnalysis}
         </button>
         {result && (
           <button
             onClick={onDone}
             className="px-5 py-2 border border-gray-300 text-gray-700 text-sm font-semibold rounded-lg hover:bg-gray-50 transition-colors"
           >
-            다음 단계
+            {t.nextStep}
           </button>
         )}
       </div>

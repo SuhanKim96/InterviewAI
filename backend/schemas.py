@@ -137,6 +137,7 @@ class SessionStartRequest(BaseModel):
     difficulty: str = "주니어"
     types: list[str] = ["technical", "experience"]
     count: int = 3
+    language: str = "ko"
 
 
 class TurnQuestion(BaseModel):

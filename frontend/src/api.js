@@ -58,7 +58,7 @@ export const askInterviewer = (body) =>
     body: JSON.stringify(body),
   }).then(json)
 
-// ── Stage A: 세션 턴 기반 API ──────────────────────────────
+// ── Stage A: session-based turn API ──────────────────────────────
 
 export const startSession = (sessionId, body) =>
   fetch(`${BASE}/sessions/${sessionId}/start`, {

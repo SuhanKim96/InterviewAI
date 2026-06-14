@@ -80,20 +80,33 @@ async def generate(
     types: list[str],
     count: int,
     conversation_history: str = "",
+    language: str = "ko",
 ) -> dict[str, list[dict]]:
     chunks = rag.search(jd_text, k=8)
-    experience_chunks = "\n---\n".join(chunks) if chunks else "검색된 경험 없음"
+    experience_chunks = "\n---\n".join(chunks) if chunks else ("No resume content indexed" if language == "en" else "검색된 경험 없음")
 
-    chain = _PROMPT | _llm
+    # For English, prepend a language instruction to the existing prompt
+    if language == "en":
+        en_instruction = (
+            "Respond in English. Generate all questions and descriptions in English.\n\n"
+        )
+        prompt = ChatPromptTemplate.from_messages([
+            ("system", en_instruction + _PROMPT.messages[0].prompt.template),
+            ("user", _PROMPT.messages[1].prompt.template),
+        ])
+    else:
+        prompt = _PROMPT
+
+    chain = prompt | _llm
     response = await chain.ainvoke({
-        "company": company or "회사",
-        "role": role or "개발자",
+        "company": company or ("Company" if language == "en" else "회사"),
+        "role": role or ("Developer" if language == "en" else "개발자"),
         "jd_text": jd_text,
         "experience_chunks": experience_chunks,
         "difficulty": difficulty,
         "types": ", ".join(types),
         "count": count,
-        "conversation_history": conversation_history or "이전 답변 없음",
+        "conversation_history": conversation_history or ("No prior answers" if language == "en" else "이전 답변 없음"),
     })
 
     raw = _STRIP_RE.sub("", response.content).strip()

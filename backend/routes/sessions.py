@@ -54,6 +54,7 @@ async def start_session(session_id: int, body: SessionStartRequest, db: AsyncSes
     session.difficulty = body.difficulty
     session.types_json = json.dumps(body.types)
     session.total_planned = total_planned
+    session.language = body.language
     await db.flush()
 
     first_category = body.types[0]
@@ -131,6 +132,7 @@ async def submit_turn(session_id: int, body: TurnRequest, db: AsyncSession = Dep
         eval_result, next_q_data, session_complete = await interview_graph.run_turn(
             session=session, current_q=current_q,
             answer_text=body.answer_text, db=db,
+            language=session.language or "ko",
         )
     except Exception as e:
         raise HTTPException(status_code=502, detail=f"그래프 실행 오류: {e}")

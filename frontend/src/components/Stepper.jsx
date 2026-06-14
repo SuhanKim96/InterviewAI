@@ -1,14 +1,16 @@
-const STEPS = [
-  { key: 'upload', label: '문서' },
-  { key: 'jd', label: 'JD' },
-  { key: 'interview', label: '면접' },
-  { key: 'done', label: '완료' },
-]
+import { T } from '../strings.js'
 
-const ORDER = STEPS.map((s) => s.key)
+const STEP_KEYS = ['upload', 'jd', 'interview', 'done']
 
-export default function Stepper({ step }) {
-  const current = ORDER.indexOf(step)
+export default function Stepper({ step, lang }) {
+  const t = T[lang]
+  const STEPS = [
+    { key: 'upload',    label: t.stepUpload },
+    { key: 'jd',        label: 'JD' },
+    { key: 'interview', label: t.stepInterview },
+    { key: 'done',      label: t.stepDone },
+  ]
+  const current = STEP_KEYS.indexOf(step)
 
   return (
     <div className="flex items-center gap-0.5">

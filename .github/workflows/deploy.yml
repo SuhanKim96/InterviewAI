@@ -20,6 +20,13 @@ jobs:
             git pull origin main
             docker compose -f docker-compose.prod.yml up -d --build
             docker system prune -f --volumes=false
-            sleep 10
-            curl -f http://localhost/api/health || exit 1
-            echo "✅ 배포 성공"
+            for i in $(seq 1 12); do
+              if curl -fs http://localhost/api/health; then
+                echo "✅ 배포 성공"
+                exit 0
+              fi
+              echo "백엔드 대기 중... ($i/12)"
+              sleep 5
+            done
+            echo "❌ 헬스체크 실패 (60초 초과)"
+            exit 1

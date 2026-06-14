@@ -6,12 +6,12 @@ function ScoreRow({ label, score }) {
   const pct = ((score ?? 0) / 5) * 100
   return (
     <div className="flex items-center gap-3">
-      <span className="text-sm text-gray-500 w-20 shrink-0">{label}</span>
-      <div className="flex-1 bg-gray-100 rounded-full h-1.5">
+      <span className="text-sm text-zinc-500 w-20 shrink-0">{label}</span>
+      <div className="flex-1 bg-zinc-100 rounded-full h-1.5">
         <div className="h-1.5 rounded-full bg-indigo-500 transition-all duration-500" style={{ width: `${pct}%` }} />
       </div>
-      <span className="text-sm font-semibold text-gray-700 w-8 text-right">
-        {score ?? '-'}<span className="text-gray-400 font-normal">/5</span>
+      <span className="text-sm font-semibold text-zinc-700 w-8 text-right">
+        {score ?? '-'}<span className="text-zinc-400 font-normal">/5</span>
       </span>
     </div>
   )
@@ -19,9 +19,9 @@ function ScoreRow({ label, score }) {
 
 function Section({ label, children }) {
   return (
-    <div className="pl-3 border-l-2 border-gray-200">
-      <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1">{label}</p>
-      <div className="text-sm text-gray-700 leading-relaxed">{children}</div>
+    <div className="pl-3 border-l-2 border-zinc-200">
+      <p className="text-xs font-semibold text-zinc-400 uppercase tracking-wide mb-1">{label}</p>
+      <div className="text-sm text-zinc-700 leading-relaxed">{children}</div>
     </div>
   )
 }
@@ -64,14 +64,14 @@ export default function AnswerFeedback({ feedback, question, category, lang, onN
 
   return (
     <div
-      className={`mt-6 pt-6 border-t border-gray-100 space-y-5 transition-opacity duration-300 ${visible ? 'opacity-100' : 'opacity-0'}`}
+      className={`mt-6 pt-6 border-t border-zinc-100 space-y-5 transition-opacity duration-300 ${visible ? 'opacity-100' : 'opacity-0'}`}
     >
       <div>
         <div className="flex items-center justify-between mb-3">
-          <span className="text-sm font-semibold text-gray-700">{t.scoreTitle}</span>
+          <span className="text-sm font-semibold text-zinc-700">{t.scoreTitle}</span>
           {overall && (
-            <span className="text-xs text-gray-500">
-              {t.overallLabel} <span className="font-bold text-gray-800">{overall}</span> / 5
+            <span className="text-xs text-zinc-500">
+              {t.overallLabel} <span className="font-bold text-zinc-800">{overall}</span> / 5
             </span>
           )}
         </div>
@@ -105,9 +105,9 @@ export default function AnswerFeedback({ feedback, question, category, lang, onN
                   value={followUpAnswer}
                   onChange={(e) => setFollowUpAnswer(e.target.value)}
                   placeholder={t.followUpPlaceholder}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-y"
+                  className="w-full border border-zinc-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 resize-y"
                 />
-                <span className="absolute bottom-2 right-3 text-xs text-gray-300 pointer-events-none">{t.charCount(followUpAnswer.length)}</span>
+                <span className="absolute bottom-2 right-3 text-xs text-zinc-300 pointer-events-none">{t.charCount(followUpAnswer.length)}</span>
               </div>
               {followUpError && <p className="text-red-500 text-xs mb-2">{followUpError}</p>}
               <button
@@ -119,9 +119,9 @@ export default function AnswerFeedback({ feedback, question, category, lang, onN
               </button>
             </div>
           ) : (
-            <div className="pl-3 border-l-2 border-gray-200">
-              <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1">{t.followUpFeedbackLabel}</p>
-              <p className="text-sm text-gray-700 leading-relaxed">{followUpComment}</p>
+            <div className="pl-3 border-l-2 border-zinc-200">
+              <p className="text-xs font-semibold text-zinc-400 uppercase tracking-wide mb-1">{t.followUpFeedbackLabel}</p>
+              <p className="text-sm text-zinc-700 leading-relaxed">{followUpComment}</p>
             </div>
           )}
         </div>
@@ -129,11 +129,11 @@ export default function AnswerFeedback({ feedback, question, category, lang, onN
 
       {feedback.rubric_basis && (
         <div>
-          <button onClick={() => setShowRubric(r => !r)} className="text-xs text-gray-400 hover:text-gray-600 transition-colors">
+          <button onClick={() => setShowRubric(r => !r)} className="text-xs text-zinc-400 hover:text-zinc-600 transition-colors">
             {showRubric ? t.hideRubric : t.showRubric}
           </button>
           {showRubric && (
-            <div className="mt-2 text-xs text-gray-500 leading-relaxed bg-gray-50 rounded-md px-3 py-2.5 border border-gray-200">
+            <div className="mt-2 text-xs text-zinc-500 leading-relaxed bg-zinc-50 rounded-md px-3 py-2.5 border border-zinc-200">
               {feedback.rubric_basis}
             </div>
           )}
@@ -142,7 +142,7 @@ export default function AnswerFeedback({ feedback, question, category, lang, onN
 
       <button
         onClick={onNext}
-        className="w-full py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold rounded-lg transition-colors"
+        className="w-full py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-lg transition-colors"
       >
         {isLast ? t.viewResults : t.nextQuestion}
       </button>

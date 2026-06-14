@@ -34,24 +34,24 @@ export default function HistoryPage({ lang, onBack }) {
 
   return (
     <div>
-      <div className="py-8 border-b border-gray-100 mb-6">
+      <div className="py-8 border-b border-zinc-100 mb-6">
         <button
           onClick={onBack}
-          className="flex items-center gap-1 text-xs text-gray-400 hover:text-gray-600 mb-4 transition-colors"
+          className="flex items-center gap-1 text-xs text-zinc-400 hover:text-zinc-600 mb-4 transition-colors"
         >
           <svg viewBox="0 0 16 16" fill="currentColor" className="w-3 h-3">
             <path fillRule="evenodd" d="M15 8a.5.5 0 00-.5-.5H2.707l3.147-3.146a.5.5 0 10-.708-.708l-4 4a.5.5 0 000 .708l4 4a.5.5 0 00.708-.708L2.707 8.5H14.5A.5.5 0 0015 8z" clipRule="evenodd" />
           </svg>
           {t.homeBack}
         </button>
-        <h2 className="text-xl font-bold text-gray-900 mb-1">{t.historyTitle}</h2>
-        <p className="text-sm text-gray-500">{t.historyDesc}</p>
+        <h2 className="text-xl font-bold text-zinc-900 mb-1">{t.historyTitle}</h2>
+        <p className="text-sm text-zinc-500">{t.historyDesc}</p>
       </div>
 
       <div className="grid grid-cols-3 gap-5">
         <div className="col-span-1 space-y-2">
           {sessions.length === 0 && (
-            <p className="text-sm text-gray-400 py-8 text-center">{t.noSessions}</p>
+            <p className="text-sm text-zinc-400 py-8 text-center">{t.noSessions}</p>
           )}
           {sessions.map((s) => (
             <button
@@ -60,19 +60,19 @@ export default function HistoryPage({ lang, onBack }) {
               className={`w-full text-left px-4 py-3 rounded-lg border transition-colors ${
                 selectedId === s.id
                   ? 'border-indigo-300 bg-indigo-50'
-                  : 'border-gray-200 bg-white hover:border-gray-300'
+                  : 'border-zinc-200 bg-white hover:border-zinc-300'
               }`}
             >
               <div className="flex items-center justify-between gap-2">
-                <p className="text-sm font-medium text-gray-800 truncate">
+                <p className="text-sm font-medium text-zinc-800 truncate">
                   {s.company || t.noCompany}
-                  {s.role && <span className="text-gray-400 font-normal"> · {s.role}</span>}
+                  {s.role && <span className="text-zinc-400 font-normal"> · {s.role}</span>}
                 </p>
                 {s.status === 'completed' && (
                   <span className="text-xs text-indigo-400 font-medium shrink-0">{t.completed}</span>
                 )}
               </div>
-              <p className="text-xs text-gray-400 mt-0.5">
+              <p className="text-xs text-zinc-400 mt-0.5">
                 {new Date(s.created_at).toLocaleDateString(t.dateLocale)}
               </p>
             </button>
@@ -81,13 +81,13 @@ export default function HistoryPage({ lang, onBack }) {
 
         <div className="col-span-2">
           {!selectedId && (
-            <div className="flex items-center justify-center h-48 text-sm text-gray-400 bg-white rounded-xl border border-gray-200">
+            <div className="flex items-center justify-center h-48 text-sm text-zinc-400 bg-white rounded-lg border border-zinc-200">
               {t.selectSession}
             </div>
           )}
 
           {loading && (
-            <div className="flex items-center justify-center h-48 text-sm text-gray-400 bg-white rounded-xl border border-gray-200">
+            <div className="flex items-center justify-center h-48 text-sm text-zinc-400 bg-white rounded-lg border border-zinc-200">
               {t.loadingHistory}
             </div>
           )}
@@ -111,19 +111,19 @@ export default function HistoryPage({ lang, onBack }) {
               })()}
 
               {history.summary && (
-                <div className="bg-indigo-50 rounded-xl border border-indigo-100 p-5">
+                <div className="bg-indigo-50 rounded-lg border border-indigo-100 p-5">
                   <p className="text-xs font-semibold text-indigo-500 uppercase tracking-wide mb-2">{t.overallFeedback}</p>
-                  <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap">{history.summary}</p>
+                  <p className="text-sm text-zinc-700 leading-relaxed whitespace-pre-wrap">{history.summary}</p>
                 </div>
               )}
 
-              <div className="bg-white rounded-xl border border-gray-200 p-5">
-                <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-4">{t.scoreTrend}</p>
+              <div className="bg-white rounded-lg border border-zinc-200 p-5">
+                <p className="text-xs font-semibold text-zinc-400 uppercase tracking-wide mb-4">{t.scoreTrend}</p>
                 <GrowthChart data={history.score_trend} lang={lang} />
               </div>
 
-              <div className="bg-white rounded-xl border border-gray-200 divide-y divide-gray-100">
-                <div className="px-4 py-2 grid grid-cols-12 text-xs font-semibold text-gray-400 uppercase tracking-wide">
+              <div className="bg-white rounded-lg border border-zinc-200 divide-y divide-zinc-100">
+                <div className="px-4 py-2 grid grid-cols-12 text-xs font-semibold text-zinc-400 uppercase tracking-wide">
                   <span className="col-span-1">{t.colNum}</span>
                   <span className="col-span-1">{t.colType}</span>
                   <span className="col-span-8">{t.colQuestion}</span>
@@ -139,18 +139,18 @@ export default function HistoryPage({ lang, onBack }) {
                       return (
                         <button
                           onClick={() => setExpandedId(prev => prev === a.id ? null : a.id)}
-                          className={`w-full px-4 py-3 grid grid-cols-12 items-center gap-2 hover:bg-gray-50 transition-colors text-left ${isLowest ? 'bg-amber-50' : ''}`}
+                          className={`w-full px-4 py-3 grid grid-cols-12 items-center gap-2 hover:bg-zinc-50 transition-colors text-left ${isLowest ? 'bg-amber-50' : ''}`}
                         >
-                          <span className="col-span-1 text-xs text-gray-400">{i + 1}</span>
+                          <span className="col-span-1 text-xs text-zinc-400">{i + 1}</span>
                           <span className={`col-span-1 text-xs px-1.5 py-0.5 rounded font-medium ${
                             a.category === 'technical' ? 'bg-indigo-50 text-indigo-600' :
                             a.category === 'culture'   ? 'bg-emerald-50 text-emerald-600' :
-                                                         'bg-gray-100 text-gray-600'
+                                                         'bg-zinc-100 text-zinc-600'
                           }`}>
                             {t.categoryLabels[a.category] ?? a.category}
                           </span>
-                          <p className="col-span-8 text-sm text-gray-700 truncate">{a.question}</p>
-                          <span className={`col-span-2 text-xs text-right tabular-nums font-semibold ${isLowest ? 'text-amber-600' : 'text-gray-500'}`}>
+                          <p className="col-span-8 text-sm text-zinc-700 truncate">{a.question}</p>
+                          <span className={`col-span-2 text-xs text-right tabular-nums font-semibold ${isLowest ? 'text-amber-600' : 'text-zinc-500'}`}>
                             {a.overall != null ? a.overall.toFixed(1) : '-'}
                             {isLowest && ' 🔴'}
                           </span>
@@ -159,7 +159,7 @@ export default function HistoryPage({ lang, onBack }) {
                     })()}
                     {expandedId === a.id && a.answer_text && (
                       <div className="px-4 pb-3">
-                        <p className="text-xs text-gray-600 leading-relaxed bg-gray-50 rounded-lg px-3 py-2.5 whitespace-pre-wrap border border-gray-100">
+                        <p className="text-xs text-zinc-600 leading-relaxed bg-zinc-50 rounded-lg px-3 py-2.5 whitespace-pre-wrap border border-zinc-100">
                           {a.answer_text}
                         </p>
                       </div>

@@ -5,7 +5,7 @@ import { T } from '../strings.js'
 
 const BADGE = {
   technical:  'bg-indigo-100 text-indigo-700',
-  experience: 'bg-gray-100 text-gray-600',
+  experience: 'bg-zinc-100 text-zinc-600',
   culture:    'bg-emerald-100 text-emerald-700',
 }
 
@@ -60,33 +60,33 @@ export default function QuestionCard({ question, sessionId, index, total, lang, 
   const pct = Math.round(((index) / total) * 100)
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+    <div className="bg-white rounded-lg border border-zinc-200 p-6">
       <div className="mb-5">
-        <div className="flex items-center justify-between text-xs text-gray-400 mb-1.5">
+        <div className="flex items-center justify-between text-xs text-zinc-400 mb-1.5">
           <span>{t.questionOf(index + 1, total)}</span>
-          <span className={`font-medium px-2 py-0.5 rounded-full ${BADGE[question.category] ?? 'bg-gray-100 text-gray-600'}`}>
+          <span className={`font-medium px-2 py-0.5 rounded-full ${BADGE[question.category] ?? 'bg-zinc-100 text-zinc-600'}`}>
             {t.categoryLabels[question.category] ?? question.category}
           </span>
         </div>
-        <div className="w-full bg-gray-100 rounded-full h-1">
+        <div className="w-full bg-zinc-100 rounded-full h-1.5">
           <div
-            className="h-1 rounded-full bg-indigo-500 transition-all duration-500"
+            className="h-1.5 rounded-full bg-indigo-500 transition-all duration-500"
             style={{ width: `${pct}%` }}
           />
         </div>
       </div>
 
-      <p className="text-gray-900 font-medium text-base leading-relaxed mb-4">{question.question}</p>
+      <p className="text-zinc-900 font-medium text-base leading-relaxed mb-4">{question.question}</p>
 
       {(question.intent || question.related_to) && (
         <div className="mb-4">
-          <button onClick={() => setShowHint(h => !h)} className="text-xs text-gray-400 hover:text-gray-600">
+          <button onClick={() => setShowHint(h => !h)} className="text-xs text-zinc-400 hover:text-zinc-600">
             {showHint ? t.hideHint : t.showHint}
           </button>
           {showHint && (
-            <div className="mt-2 bg-gray-50 rounded-lg px-3 py-2 text-xs text-gray-500 space-y-1">
-              {question.intent && <p><span className="font-medium text-gray-600">{t.intentLabel}</span> {question.intent}</p>}
-              {question.related_to && <p><span className="font-medium text-gray-600">{t.basisLabel}</span> {question.related_to}</p>}
+            <div className="mt-2 bg-zinc-50 rounded-lg px-3 py-2 text-xs text-zinc-500 space-y-1">
+              {question.intent && <p><span className="font-medium text-zinc-600">{t.intentLabel}</span> {question.intent}</p>}
+              {question.related_to && <p><span className="font-medium text-zinc-600">{t.basisLabel}</span> {question.related_to}</p>}
             </div>
           )}
         </div>
@@ -101,9 +101,9 @@ export default function QuestionCard({ question, sessionId, index, total, lang, 
               value={answerText}
               onChange={(e) => setAnswerText(e.target.value)}
               placeholder={t.answerPlaceholder}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-y"
+              className="w-full border border-zinc-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 resize-y"
             />
-            <span className="absolute bottom-2 right-3 text-xs text-gray-300 pointer-events-none">
+            <span className="absolute bottom-2 right-3 text-xs text-zinc-300 pointer-events-none">
               {t.charCount(answerText.length)}
             </span>
           </div>
@@ -111,7 +111,7 @@ export default function QuestionCard({ question, sessionId, index, total, lang, 
           <button
             onClick={handleSubmit}
             disabled={loading}
-            className="px-5 py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="px-5 py-2.5 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             {loading ? t.evaluating : t.submit}
           </button>
@@ -128,10 +128,10 @@ export default function QuestionCard({ question, sessionId, index, total, lang, 
       )}
 
       {sessionId && (
-        <div className="mt-6 pt-5 border-t border-gray-100">
+        <div className="mt-6 pt-5 border-t border-zinc-100">
           <button
             onClick={() => setShowAsk(v => !v)}
-            className="text-xs text-gray-400 hover:text-gray-600 transition-colors"
+            className="text-xs text-zinc-400 hover:text-zinc-600 transition-colors"
           >
             {showAsk ? t.closeAsk : t.openAsk}
           </button>
@@ -144,13 +144,13 @@ export default function QuestionCard({ question, sessionId, index, total, lang, 
                     <p className="text-xs bg-indigo-600 text-white px-3 py-2 rounded-xl rounded-br-sm max-w-xs">{item.q}</p>
                   </div>
                   <div className="flex justify-start">
-                    <p className="text-xs bg-gray-100 text-gray-700 px-3 py-2 rounded-xl rounded-bl-sm max-w-xs leading-relaxed">{item.a}</p>
+                    <p className="text-xs bg-zinc-100 text-zinc-700 px-3 py-2 rounded-xl rounded-bl-sm max-w-xs leading-relaxed">{item.a}</p>
                   </div>
                 </div>
               ))}
               {askLoading && (
                 <div className="flex justify-start">
-                  <p className="text-xs bg-gray-100 text-gray-400 px-3 py-2 rounded-xl rounded-bl-sm">{t.askAnswering}</p>
+                  <p className="text-xs bg-zinc-100 text-zinc-400 px-3 py-2 rounded-xl rounded-bl-sm">{t.askAnswering}</p>
                 </div>
               )}
               <div className="flex gap-2">
@@ -159,7 +159,7 @@ export default function QuestionCard({ question, sessionId, index, total, lang, 
                   onChange={(e) => setAskInput(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && handleAsk()}
                   placeholder={t.askPlaceholder}
-                  className="flex-1 border border-gray-300 rounded-lg px-3 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="flex-1 border border-zinc-200 rounded-lg px-3 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
                 />
                 <button
                   onClick={handleAsk}

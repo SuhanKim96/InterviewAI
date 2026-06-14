@@ -66,6 +66,7 @@ async def start_session(session_id: int, body: SessionStartRequest, db: AsyncSes
         types=[first_category],
         count=1,
         conversation_history="",
+        language=body.language or "ko",
     )
 
     q_data = (result.get(first_category) or [])

@@ -24,7 +24,10 @@ _In English_: [README.md](README.md)
 
 [http://47.130.83.57/](http://47.130.83.57/)
 
-<!-- 스크린샷 자리 -->
+<!-- 스크린샷을 docs/images/ 에 넣고 아래 주석을 해제하세요 -->
+<!-- ![랜딩](docs/images/landing.png) -->
+<!-- ![면접](docs/images/interview.png) -->
+<!-- ![피드백](docs/images/feedback.png) -->
 
 ---
 

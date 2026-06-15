@@ -22,7 +22,10 @@ InterviewAI takes your resume, portfolio, GitHub repositories, and a job descrip
 
 [http://47.130.83.57/](http://47.130.83.57/)
 
-<!-- screenshot placeholder -->
+<!-- paste demo screenshots into docs/images/ and uncomment below -->
+<!-- ![Landing](docs/images/landing.png) -->
+<!-- ![Interview](docs/images/interview.png) -->
+<!-- ![Feedback](docs/images/feedback.png) -->
 
 ---
 

@@ -1,9 +1,16 @@
 const BASE = '/api'
 
+function generateId() {
+  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+    return crypto.randomUUID()
+  }
+  return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}-${Math.random().toString(36).slice(2)}`
+}
+
 function getClientId() {
   let id = localStorage.getItem('client_id')
   if (!id) {
-    id = crypto.randomUUID()
+    id = generateId()
     localStorage.setItem('client_id', id)
   }
   return id

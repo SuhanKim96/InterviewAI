@@ -81,8 +81,9 @@ async def generate(
     count: int,
     conversation_history: str = "",
     language: str = "ko",
+    client_id: str = "",
 ) -> dict[str, list[dict]]:
-    chunks = rag.search(jd_text, k=8)
+    chunks = rag.search(jd_text, k=8, client_id=client_id or None)
     experience_chunks = "\n---\n".join(chunks) if chunks else ("No resume content indexed" if language == "en" else "검색된 경험 없음")
 
     # For English, prepend a language instruction to the existing prompt

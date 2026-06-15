@@ -19,6 +19,7 @@ class Session(Base):
     types_json: Mapped[str | None] = mapped_column(Text)
     total_planned: Mapped[int | None] = mapped_column(Integer)
     language: Mapped[str] = mapped_column(String(5), server_default="ko")
+    client_id: Mapped[str] = mapped_column(String(36), index=True, server_default="")
 
     questions: Mapped[list["Question"]] = relationship(back_populates="session", cascade="all, delete")
 

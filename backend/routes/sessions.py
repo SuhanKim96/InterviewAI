@@ -5,6 +5,7 @@ from sqlalchemy import select, func
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from db import get_db
+from deps import get_client_id
 from models import Session, Question, Answer
 from schemas import (
     SessionCreate, SessionResponse, SessionListItem,
@@ -17,9 +18,18 @@ from services import session_manager, interview_graph, question_gen
 router = APIRouter(prefix="/sessions", tags=["sessions"])
 
 
+def _check_owner(session: Session, client_id: str) -> None:
+    if session.client_id != client_id:
+        raise HTTPException(status_code=404, detail="세션을 찾을 수 없습니다.")
+
+
 @router.post("", response_model=SessionResponse)
-async def create_session(body: SessionCreate, db: AsyncSession = Depends(get_db)):
-    session = Session(company=body.company, role=body.role, jd_text=body.jd_text)
+async def create_session(
+    body: SessionCreate,
+    db: AsyncSession = Depends(get_db),
+    client_id: str = Depends(get_client_id),
+):
+    session = Session(company=body.company, role=body.role, jd_text=body.jd_text, client_id=client_id)
     db.add(session)
     await db.commit()
     await db.refresh(session)
@@ -27,8 +37,15 @@ async def create_session(body: SessionCreate, db: AsyncSession = Depends(get_db)
 
 
 @router.get("", response_model=list[SessionListItem])
-async def list_sessions(db: AsyncSession = Depends(get_db)):
-    result = await db.execute(select(Session).order_by(Session.created_at.desc()))
+async def list_sessions(
+    db: AsyncSession = Depends(get_db),
+    client_id: str = Depends(get_client_id),
+):
+    result = await db.execute(
+        select(Session)
+        .where(Session.client_id == client_id)
+        .order_by(Session.created_at.desc())
+    )
     sessions = result.scalars().all()
     return [
         SessionListItem(id=s.id, company=s.company, role=s.role, created_at=s.created_at, status=s.status or "active")
@@ -37,10 +54,16 @@ async def list_sessions(db: AsyncSession = Depends(get_db)):
 
 
 @router.post("/{session_id}/start", response_model=StartResponse)
-async def start_session(session_id: int, body: SessionStartRequest, db: AsyncSession = Depends(get_db)):
+async def start_session(
+    session_id: int,
+    body: SessionStartRequest,
+    db: AsyncSession = Depends(get_db),
+    client_id: str = Depends(get_client_id),
+):
     session = await db.get(Session, session_id)
     if not session:
         raise HTTPException(status_code=404, detail="세션을 찾을 수 없습니다.")
+    _check_owner(session, client_id)
 
     existing = await db.execute(
         select(func.count(Question.id))
@@ -67,11 +90,11 @@ async def start_session(session_id: int, body: SessionStartRequest, db: AsyncSes
         count=1,
         conversation_history="",
         language=body.language or "ko",
+        client_id=client_id,
     )
 
     q_data = (result.get(first_category) or [])
     if not q_data:
-        # fallback: try the other key
         for v in result.values():
             if v:
                 q_data = v
@@ -106,11 +129,16 @@ async def start_session(session_id: int, body: SessionStartRequest, db: AsyncSes
 
 
 @router.post("/{session_id}/turn", response_model=TurnResponse)
-async def submit_turn(session_id: int, body: TurnRequest, db: AsyncSession = Depends(get_db)):
-    # ── DB 로드 ──────────────────────────────────────────────────────────────
+async def submit_turn(
+    session_id: int,
+    body: TurnRequest,
+    db: AsyncSession = Depends(get_db),
+    client_id: str = Depends(get_client_id),
+):
     session = await db.get(Session, session_id)
     if not session:
         raise HTTPException(status_code=404, detail="세션을 찾을 수 없습니다.")
+    _check_owner(session, client_id)
     if session.status == "completed":
         raise HTTPException(status_code=409, detail="이미 완료된 세션입니다.")
 
@@ -128,17 +156,16 @@ async def submit_turn(session_id: int, body: TurnRequest, db: AsyncSession = Dep
     if (await db.execute(select(Answer).where(Answer.question_id == current_q.id).limit(1))).scalar_one_or_none():
         raise HTTPException(status_code=409, detail="이미 답변된 질문입니다.")
 
-    # ── 그래프 실행 ───────────────────────────────────────────────────────────
     try:
         eval_result, next_q_data, session_complete = await interview_graph.run_turn(
             session=session, current_q=current_q,
             answer_text=body.answer_text, db=db,
             language=session.language or "ko",
+            client_id=client_id,
         )
     except Exception as e:
         raise HTTPException(status_code=502, detail=f"그래프 실행 오류: {e}")
 
-    # ── DB 저장 ──────────────────────────────────────────────────────────────
     answer = Answer(
         question_id=current_q.id,
         answer_text=body.answer_text,
@@ -199,10 +226,15 @@ async def submit_turn(session_id: int, body: TurnRequest, db: AsyncSession = Dep
 
 
 @router.post("/{session_id}/finish", response_model=ReportResponse)
-async def finish_session(session_id: int, db: AsyncSession = Depends(get_db)):
+async def finish_session(
+    session_id: int,
+    db: AsyncSession = Depends(get_db),
+    client_id: str = Depends(get_client_id),
+):
     session = await db.get(Session, session_id)
     if not session:
         raise HTTPException(status_code=404, detail="세션을 찾을 수 없습니다.")
+    _check_owner(session, client_id)
     if session.status == "completed":
         raise HTTPException(status_code=409, detail="이미 완료된 세션입니다.")
 
@@ -215,10 +247,15 @@ async def finish_session(session_id: int, db: AsyncSession = Depends(get_db)):
 
 
 @router.get("/{session_id}/report", response_model=ReportResponse)
-async def get_report(session_id: int, db: AsyncSession = Depends(get_db)):
+async def get_report(
+    session_id: int,
+    db: AsyncSession = Depends(get_db),
+    client_id: str = Depends(get_client_id),
+):
     session = await db.get(Session, session_id)
     if not session:
         raise HTTPException(status_code=404, detail="세션을 찾을 수 없습니다.")
+    _check_owner(session, client_id)
     return await _build_report_response(session, db)
 
 

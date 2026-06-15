@@ -18,22 +18,24 @@ _vectorstore = Chroma(
 _splitter = RecursiveCharacterTextSplitter(chunk_size=500, chunk_overlap=50)
 
 
-def index_documents(text: str, source: str, name: str = "") -> int:
+def index_documents(text: str, source: str, name: str = "", client_id: str = "") -> int:
     if not text.strip():
         return 0
     chunks = _splitter.split_text(text)
-    metadatas = [{"source": source, "name": name}] * len(chunks)
+    metadatas = [{"source": source, "name": name, "client_id": client_id}] * len(chunks)
     _vectorstore.add_texts(chunks, metadatas=metadatas)
     return len(chunks)
 
 
-def search(query: str, k: int = 5) -> list[str]:
-    docs = _vectorstore.similarity_search(query, k=k)
+def search(query: str, k: int = 5, client_id: str | None = None) -> list[str]:
+    kwargs: dict = {"where": {"client_id": client_id}} if client_id else {}
+    docs = _vectorstore.similarity_search(query, k=k, **kwargs)
     return [doc.page_content for doc in docs]
 
 
-def list_sources() -> list[dict]:
-    result = _vectorstore.get(include=["metadatas"])
+def list_sources(client_id: str | None = None) -> list[dict]:
+    kwargs: dict = {"where": {"client_id": client_id}} if client_id else {}
+    result = _vectorstore.get(include=["metadatas"], **kwargs)
     seen: set[tuple] = set()
     sources: list[dict] = []
     for meta in result["metadatas"]:
@@ -44,12 +46,16 @@ def list_sources() -> list[dict]:
     return sources
 
 
-def total_chunks() -> int:
-    return len(_vectorstore.get()["ids"])
+def total_chunks(client_id: str | None = None) -> int:
+    kwargs: dict = {"where": {"client_id": client_id}} if client_id else {}
+    return len(_vectorstore.get(**kwargs)["ids"])
 
 
-def clear_documents() -> None:
-    _vectorstore.reset_collection()
+def clear_documents(client_id: str | None = None) -> None:
+    if client_id:
+        _vectorstore.delete(where={"client_id": client_id})
+    else:
+        _vectorstore.reset_collection()
 
 
 _eval_vectorstore: Chroma | None = None

@@ -1,5 +1,17 @@
 const BASE = '/api'
 
+function getClientId() {
+  let id = localStorage.getItem('client_id')
+  if (!id) {
+    id = crypto.randomUUID()
+    localStorage.setItem('client_id', id)
+  }
+  return id
+}
+
+const apiFetch = (url, opts = {}) =>
+  fetch(url, { ...opts, headers: { 'X-Client-Id': getClientId(), ...opts.headers } })
+
 const json = async (r) => {
   if (!r.ok) {
     const err = await r.json().catch(() => ({ detail: r.statusText }))
@@ -9,50 +21,50 @@ const json = async (r) => {
 }
 
 export const uploadDocuments = (formData) =>
-  fetch(`${BASE}/documents`, { method: 'POST', body: formData }).then(json)
+  apiFetch(`${BASE}/documents`, { method: 'POST', body: formData }).then(json)
 
 export const createSession = (body) =>
-  fetch(`${BASE}/sessions`, {
+  apiFetch(`${BASE}/sessions`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
   }).then(json)
 
 export const generateQuestions = (body) =>
-  fetch(`${BASE}/questions`, {
+  apiFetch(`${BASE}/questions`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
   }).then(json)
 
 export const submitAnswer = (body) =>
-  fetch(`${BASE}/answers`, {
+  apiFetch(`${BASE}/answers`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
   }).then(json)
 
 export const getDocuments = () =>
-  fetch(`${BASE}/documents`).then(json)
+  apiFetch(`${BASE}/documents`).then(json)
 
 export const deleteDocuments = () =>
-  fetch(`${BASE}/documents`, { method: 'DELETE' }).then((r) => r.ok)
+  apiFetch(`${BASE}/documents`, { method: 'DELETE' }).then((r) => r.ok)
 
 export const getSessions = () =>
-  fetch(`${BASE}/sessions`).then(json)
+  apiFetch(`${BASE}/sessions`).then(json)
 
 export const getHistory = (sessionId) =>
-  fetch(`${BASE}/history?session_id=${sessionId}`).then(json)
+  apiFetch(`${BASE}/history?session_id=${sessionId}`).then(json)
 
 export const submitFollowUp = (body) =>
-  fetch(`${BASE}/follow-up`, {
+  apiFetch(`${BASE}/follow-up`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
   }).then(json)
 
 export const askInterviewer = (body) =>
-  fetch(`${BASE}/ask`, {
+  apiFetch(`${BASE}/ask`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
@@ -61,21 +73,21 @@ export const askInterviewer = (body) =>
 // ── Stage A: session-based turn API ──────────────────────────────
 
 export const startSession = (sessionId, body) =>
-  fetch(`${BASE}/sessions/${sessionId}/start`, {
+  apiFetch(`${BASE}/sessions/${sessionId}/start`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
   }).then(json)
 
 export const submitTurn = (sessionId, body) =>
-  fetch(`${BASE}/sessions/${sessionId}/turn`, {
+  apiFetch(`${BASE}/sessions/${sessionId}/turn`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
   }).then(json)
 
 export const finishSession = (sessionId) =>
-  fetch(`${BASE}/sessions/${sessionId}/finish`, { method: 'POST' }).then(json)
+  apiFetch(`${BASE}/sessions/${sessionId}/finish`, { method: 'POST' }).then(json)
 
 export const getReport = (sessionId) =>
-  fetch(`${BASE}/sessions/${sessionId}/report`).then(json)
+  apiFetch(`${BASE}/sessions/${sessionId}/report`).then(json)

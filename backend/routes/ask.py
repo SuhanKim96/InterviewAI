@@ -8,6 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from config import settings
 from db import get_db
+from deps import get_client_id
 from models import Session
 from schemas import AskRequest, AskResponse
 
@@ -50,9 +51,15 @@ _PROMPT_EN = ChatPromptTemplate.from_messages([
 
 
 @router.post("", response_model=AskResponse)
-async def ask_interviewer(body: AskRequest, db: AsyncSession = Depends(get_db)):
+async def ask_interviewer(
+    body: AskRequest,
+    db: AsyncSession = Depends(get_db),
+    client_id: str = Depends(get_client_id),
+):
     session = await db.get(Session, body.session_id)
     if not session:
+        raise HTTPException(status_code=404, detail="세션을 찾을 수 없습니다.")
+    if session.client_id != client_id:
         raise HTTPException(status_code=404, detail="세션을 찾을 수 없습니다.")
     try:
         lang = session.language or "ko"

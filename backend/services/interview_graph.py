@@ -49,6 +49,7 @@ class InterviewState(TypedDict):
     # 추가 컨텍스트
     types_used_counts: dict     # {"technical": 2, "experience": 1, "culture": 0}
     language: str               # "ko" | "en"
+    client_id: str
 
     # 노드 출력
     eval_result: dict           # followup_node가 follow_up 필드를 추가
@@ -125,6 +126,7 @@ async def evaluator_node(state: InterviewState) -> dict:
         category=state["current_category"],
         conversation_history=state["conversation_history"],
         language=state.get("language", "ko"),
+        client_id=state.get("client_id", ""),
     )
     return {"eval_result": result}
 
@@ -219,6 +221,7 @@ async def _interviewer_node(state: InterviewState, category: str) -> dict:
         count=1,
         conversation_history=state["conversation_history"],
         language=state.get("language", "ko"),
+        client_id=state.get("client_id", ""),
     )
     items = result.get(category) or next((v for v in result.values() if v), [])
     q = items[0] if items else {
@@ -277,7 +280,7 @@ _graph = build_interview_graph()
 
 # ── Public Entry Point ────────────────────────────────────────────────────────
 
-async def run_turn(session, current_q, answer_text: str, db, language: str = "ko") -> tuple[dict, dict | None, bool]:
+async def run_turn(session, current_q, answer_text: str, db, language: str = "ko", client_id: str = "") -> tuple[dict, dict | None, bool]:
     """
     sessions.py /turn 엔드포인트에서 호출.
     반환: (eval_result, next_question_data | None, session_complete)
@@ -311,6 +314,7 @@ async def run_turn(session, current_q, answer_text: str, db, language: str = "ko
         answer_text=answer_text,
         types_used_counts=types_used_counts,
         language=language,
+        client_id=client_id,
         eval_result={},
         orchestrator_action="",
         next_question_data=None,

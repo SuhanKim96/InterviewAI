@@ -1,7 +1,8 @@
-from fastapi import APIRouter, UploadFile, File, Form, HTTPException
+from fastapi import APIRouter, Depends, UploadFile, File, Form, HTTPException
 from fastapi.responses import Response
 from typing import Annotated
 
+from deps import get_client_id
 from schemas import DocumentResponse, DocumentListResponse, DocumentSource
 from services import pdf_parser, github_fetch, rag
 from config import settings
@@ -10,9 +11,9 @@ router = APIRouter(prefix="/documents", tags=["documents"])
 
 
 @router.get("", response_model=DocumentListResponse)
-async def get_documents():
-    sources = rag.list_sources()
-    chunks = rag.total_chunks()
+async def get_documents(client_id: str = Depends(get_client_id)):
+    sources = rag.list_sources(client_id)
+    chunks = rag.total_chunks(client_id)
     return DocumentListResponse(
         sources=[DocumentSource(source=s["source"], name=s["name"]) for s in sources],
         total_chunks=chunks,
@@ -20,13 +21,14 @@ async def get_documents():
 
 
 @router.delete("")
-async def delete_documents():
-    rag.clear_documents()
+async def delete_documents(client_id: str = Depends(get_client_id)):
+    rag.clear_documents(client_id)
     return Response(status_code=204)
 
 
 @router.post("", response_model=DocumentResponse)
 async def index_documents(
+    client_id: str = Depends(get_client_id),
     pdfs: Annotated[list[UploadFile], File()] = [],
     portfolio_text: Annotated[str | None, Form()] = None,
 ):
@@ -45,12 +47,12 @@ async def index_documents(
             raise HTTPException(status_code=422, detail=str(e))
         source = "resume" if i == 0 else "portfolio_pdf"
         combined_text += text + "\n"
-        n_chunks += rag.index_documents(text, source=source, name=pdf.filename or source)
+        n_chunks += rag.index_documents(text, source=source, name=pdf.filename or source, client_id=client_id)
         indexed_files.append(pdf.filename or source)
 
     if portfolio_text:
         combined_text += portfolio_text + "\n"
-        n_chunks += rag.index_documents(portfolio_text, source="portfolio")
+        n_chunks += rag.index_documents(portfolio_text, source="portfolio", client_id=client_id)
 
     github_urls = github_fetch.extract_github_urls(combined_text)
     indexed_repos: list[str] = []
@@ -58,7 +60,7 @@ async def index_documents(
         try:
             chunk = github_fetch.fetch_repo_chunk(owner, repo, token=settings.github_token)
             if chunk:
-                n_chunks += rag.index_documents(chunk, source="github", name=f"{owner}/{repo}")
+                n_chunks += rag.index_documents(chunk, source="github", name=f"{owner}/{repo}", client_id=client_id)
                 indexed_repos.append(f"{owner}/{repo}")
         except RuntimeError:
             pass

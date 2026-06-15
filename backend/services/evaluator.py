@@ -142,8 +142,9 @@ async def evaluate(
     category: str,
     conversation_history: str = "",
     language: str = "ko",
+    client_id: str = "",
 ) -> dict:
-    experience_chunks = rag.search(question, k=5)
+    experience_chunks = rag.search(question, k=5, client_id=client_id or None)
     rubric_chunks = rubrics.search_rubrics(question, category, k=3, language=language)
 
     prompt = _build_prompt(category, language)

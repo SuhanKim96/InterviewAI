@@ -24,10 +24,7 @@ _In English_: [README.md](README.md)
 
 [http://47.130.83.57/](http://47.130.83.57/)
 
-<!-- 스크린샷을 docs/images/ 에 넣고 아래 주석을 해제하세요 -->
-<!-- ![랜딩](docs/images/landing.png) -->
-<!-- ![면접](docs/images/interview.png) -->
-<!-- ![피드백](docs/images/feedback.png) -->
+_스크린샷은 페이지 맨 아래에 있습니다._
 
 ---
 
@@ -297,3 +294,15 @@ npm run dev
 
 - **Reranker는 eval 전용.** `BAAI/bge-reranker-base`는 `requirements-eval.txt`에만 있고 프로덕션 Docker 이미지에 포함되지 않는다. `rag.py`의 `_get_reranker()`는 lazy import라 앱 기동 시 오류 없이 동작한다.
 - `eval_documents` ChromaDB 컬렉션은 프로덕션 `documents` 컬렉션과 완전히 분리되어 있다. eval 스크립트는 사용자 데이터를 읽거나 쓰지 않는다.
+
+---
+
+## 스크린샷
+
+![](docs/images/1.png)
+![](docs/images/2.png)
+![](docs/images/3.png)
+![](docs/images/4.png)
+![](docs/images/5.png)
+![](docs/images/6.png)
+![](docs/images/7.png)

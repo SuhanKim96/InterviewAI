@@ -22,10 +22,7 @@ InterviewAI takes your resume, portfolio, GitHub repositories, and a job descrip
 
 [http://47.130.83.57/](http://47.130.83.57/)
 
-<!-- paste demo screenshots into docs/images/ and uncomment below -->
-<!-- ![Landing](docs/images/landing.png) -->
-<!-- ![Interview](docs/images/interview.png) -->
-<!-- ![Feedback](docs/images/feedback.png) -->
+_See screenshots at the bottom of this page._
 
 ---
 
@@ -297,3 +294,15 @@ npm run dev
 
 - **Reranker is eval-only.** `BAAI/bge-reranker-base` is in `requirements-eval.txt` and is not installed in the production Docker image. `_get_reranker()` in `rag.py` uses a lazy import so the app starts cleanly without it.
 - The `eval_documents` ChromaDB collection is fully isolated from the production `documents` collection. Eval scripts never read or write user data.
+
+---
+
+## Screenshots
+
+![](docs/images/1.png)
+![](docs/images/2.png)
+![](docs/images/3.png)
+![](docs/images/4.png)
+![](docs/images/5.png)
+![](docs/images/6.png)
+![](docs/images/7.png)

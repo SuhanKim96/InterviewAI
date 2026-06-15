@@ -22,7 +22,7 @@ _In English_: [README.md](README.md)
 
 ## Live Demo
 
-`http://<EIP>`
+[http://47.130.83.57/](http://47.130.83.57/)
 
 <!-- 스크린샷 자리 -->
 

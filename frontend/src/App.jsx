@@ -111,7 +111,7 @@ function AppShell() {
         onCancel={() => setLeaveDialogOpen(false)}
       />
 
-      <AnimatePresence mode="wait" initial={false}>
+      <AnimatePresence mode="wait">
         {step === 'landing' && (
           <PageTransition key="landing">
             <LandingPage lang={lang} onStart={handleStart} onHistory={() => setStep('history')} onDocuments={() => setStep('documents')} />

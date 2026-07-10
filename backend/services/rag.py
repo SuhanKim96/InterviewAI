@@ -28,7 +28,7 @@ def index_documents(text: str, source: str, name: str = "", client_id: str = "")
 
 
 def search(query: str, k: int = 5, client_id: str | None = None) -> list[str]:
-    kwargs: dict = {"where": {"client_id": client_id}} if client_id else {}
+    kwargs: dict = {"filter": {"client_id": client_id}} if client_id else {}
     docs = _vectorstore.similarity_search(query, k=k, **kwargs)
     return [doc.page_content for doc in docs]
 

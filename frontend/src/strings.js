@@ -4,6 +4,10 @@ export const DIFFICULTIES = ['신입', '주니어', '시니어']
 export const T = {
   ko: {
     langToggle: 'EN',
+    themeToLight: '라이트 모드로 전환',
+    themeToDark: '다크 모드로 전환',
+    leaveTitle: '면접 나가기',
+    leave: '나가기',
     interviewInProgress: '면접이 진행 중입니다. 홈으로 돌아가면 진행 내용이 사라집니다.',
     generatingReport: '종합 리포트를 생성하고 있습니다...',
     reportError: '리포트 생성 중 오류가 발생했습니다: ',
@@ -27,6 +31,13 @@ export const T = {
       { title: '모의 면접', desc: '분석한 내용으로 질문을 던지고, 답변마다 평가와 꼬리질문을 이어갑니다.' },
       { title: '결과 리포트', desc: '항목별 점수와 성장 추이를 한눈에 정리해 줍니다.' },
     ],
+    heroAccent: '제대로',
+    heroTitle2Rest: ' 준비하세요.',
+    floatQuestion: '프로젝트에서 가장 어려웠던 부분은 무엇이었나요?',
+    floatScoreLabel: '명확성',
+    floatStar: 'STAR 구조',
+    floatFollowUp: '꼬리질문',
+    footerTagline: 'AI 모의 면접으로 준비하는 기술 면접',
     // JDInput
     back: '이전',
     jdTitle: '채용 공고 입력',
@@ -47,6 +58,7 @@ export const T = {
     errNoQuestion: '질문이 생성되지 않았습니다. 다시 시도해주세요.',
     generating: '질문 생성 중...',
     startBtn: '면접 시작',
+    totalQuestions: (n) => `총 ${n}개 질문이 생성됩니다`,
     // QuestionCard
     questionOf: (i, total) => `질문 ${i} / ${total}`,
     categoryLabels: { technical: '기술', experience: '경험', culture: '컬처핏' },
@@ -59,6 +71,8 @@ export const T = {
     errNoAnswer: '답변을 입력해주세요.',
     evaluating: '평가 중...',
     submit: '제출',
+    submitHint: '⌘/Ctrl+Enter로 제출',
+    kbdSubmit: '제출',
     closeAsk: '▲ 닫기',
     openAsk: '▼ 면접관에게 질문하기',
     askAnswering: '답변 중...',
@@ -130,7 +144,9 @@ export const T = {
     nextStep: '다음 단계',
     // DocumentsPage
     sourceLabels: { resume: '이력서', portfolio_pdf: '포트폴리오', portfolio: '포트폴리오 텍스트', github: 'GitHub' },
+    deleteDocsTitle: '문서 전체 삭제',
     confirmDeleteDocs: '분석된 문서를 전부 삭제할까요? 다시 업로드해야 합니다.',
+    docsDeleted: '문서를 모두 삭제했습니다.',
     docsTitle: '내 문서',
     docsDesc: '한 번 업로드하면 유지됩니다. 언제든지 추가하거나 초기화할 수 있습니다.',
     noDocsYet: '아직 분석된 문서가 없습니다.',
@@ -150,6 +166,10 @@ export const T = {
 
   en: {
     langToggle: '한국어',
+    themeToLight: 'Switch to light mode',
+    themeToDark: 'Switch to dark mode',
+    leaveTitle: 'Leave Interview',
+    leave: 'Leave',
     interviewInProgress: 'An interview is in progress. Leaving will discard your progress.',
     generatingReport: 'Generating overall report...',
     reportError: 'Error generating report.',
@@ -173,6 +193,13 @@ export const T = {
       { title: 'Mock interview', desc: 'It asks questions from that analysis, scoring each answer and following up as needed.' },
       { title: 'Result report', desc: 'See per-criterion scores and your progress over time at a glance.' },
     ],
+    heroAccent: 'done right.',
+    heroTitle2Rest: '',
+    floatQuestion: 'What was the hardest part of the project?',
+    floatScoreLabel: 'Clarity',
+    floatStar: 'STAR',
+    floatFollowUp: 'Follow-up',
+    footerTagline: 'Tech interview prep with AI mock interviews',
     // JDInput
     back: 'Back',
     jdTitle: 'Job Description',
@@ -193,6 +220,7 @@ export const T = {
     errNoQuestion: 'No questions were generated. Please try again.',
     generating: 'Generating questions...',
     startBtn: 'Start Interview',
+    totalQuestions: (n) => `${n} questions will be generated`,
     // QuestionCard
     questionOf: (i, total) => `Question ${i} / ${total}`,
     categoryLabels: { technical: 'Technical', experience: 'Experience', culture: 'Culture Fit' },
@@ -205,6 +233,8 @@ export const T = {
     errNoAnswer: 'Please enter your answer.',
     evaluating: 'Evaluating...',
     submit: 'Submit',
+    submitHint: '⌘/Ctrl+Enter to submit',
+    kbdSubmit: 'to submit',
     closeAsk: '▲ Close',
     openAsk: '▼ Ask the Interviewer',
     askAnswering: 'Answering...',
@@ -276,7 +306,9 @@ export const T = {
     nextStep: 'Next',
     // DocumentsPage
     sourceLabels: { resume: 'Resume', portfolio_pdf: 'Portfolio', portfolio: 'Portfolio Text', github: 'GitHub' },
+    deleteDocsTitle: 'Delete All Documents',
     confirmDeleteDocs: 'Delete all analysed documents? You will need to re-upload them.',
+    docsDeleted: 'All documents deleted.',
     docsTitle: 'My Documents',
     docsDesc: 'Uploaded documents are retained. You can add or reset them at any time.',
     noDocsYet: 'No documents have been analysed yet.',

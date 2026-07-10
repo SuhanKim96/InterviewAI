@@ -1,5 +1,152 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  /* Deep navy-tinted dark palette — avoids the flat "just black" look */
+  --color-night-950: #0a0c14;
+  --color-night-900: #11141f;
+  --color-night-800: #1b1f2e;
+  --font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+}
+
 * {
   font-family: 'Inter', sans-serif;
+}
+
+:root {
+  --sk-a: #e4e4e7;
+  --sk-b: #f4f4f5;
+  color-scheme: light;
+}
+
+.dark {
+  --sk-a: #1b1f2e;
+  --sk-b: #262b3d;
+  color-scheme: dark;
+}
+
+body {
+  background-color: #fafafa;
+}
+
+.dark body {
+  background-color: #0a0c14;
+}
+
+::selection {
+  background-color: rgb(99 102 241 / 0.25);
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgb(161 161 170 / 0.35);
+  border-radius: 8px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: rgb(255 255 255 / 0.15);
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+/* Subtle dot-grid texture behind the hero, fading out toward the edges */
+.bg-dot-grid {
+  background-image: radial-gradient(circle, rgb(99 102 241 / 0.22) 1px, transparent 1px);
+  background-size: 24px 24px;
+  -webkit-mask-image: radial-gradient(ellipse 70% 60% at 50% 40%, black, transparent 70%);
+  mask-image: radial-gradient(ellipse 70% 60% at 50% 40%, black, transparent 70%);
+}
+
+.dark .bg-dot-grid {
+  background-image: radial-gradient(circle, rgb(129 140 248 / 0.16) 1px, transparent 1px);
+}
+
+.kbd {
+  display: inline-flex;
+  align-items: center;
+  padding: 0 5px;
+  min-width: 18px;
+  height: 18px;
+  justify-content: center;
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 10px;
+  border-radius: 5px;
+  border: 1px solid rgb(228 228 231);
+  border-bottom-width: 2px;
+  color: rgb(113 113 122);
+  background: rgb(250 250 250);
+}
+
+.dark .kbd {
+  border-color: rgb(255 255 255 / 0.15);
+  color: rgb(161 161 170);
+  background: rgb(255 255 255 / 0.05);
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes shimmer {
+  from { background-position: 200% 0; }
+  to   { background-position: -200% 0; }
+}
+
+@keyframes bounce-dot {
+  0%, 80%, 100% { transform: translateY(0); opacity: 0.4; }
+  40%           { transform: translateY(-3px); opacity: 1; }
+}
+
+/* Ambient hero blobs — infinite compositor-only loops stay in CSS
+   so they cost no React work and inherit the reduced-motion guard. */
+@keyframes float-a {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33%      { transform: translate(24px, -20px) scale(1.06); }
+  66%      { transform: translate(-16px, 14px) scale(0.97); }
+}
+
+@keyframes float-b {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50%      { transform: translate(-28px, 22px) scale(1.08); }
+}
+
+@keyframes float-c {
+  0%, 100% { transform: translate(0, 0) rotate(var(--float-rotate, 0deg)); }
+  40%      { transform: translate(10px, -14px) rotate(var(--float-rotate, 0deg)); }
+  70%      { transform: translate(-8px, 8px) rotate(var(--float-rotate, 0deg)); }
+}
+
+.animate-fade-in       { animation: fade-in 0.3s ease-out both; }
+.animate-float-slow    { animation: float-a 14s ease-in-out infinite; }
+.animate-float-slower  { animation: float-b 19s ease-in-out infinite; }
+.animate-float-card    { animation: float-c 9s ease-in-out infinite; }
+
+.typing-dot {
+  animation: bounce-dot 1.2s ease-in-out infinite;
+}
+
+.skeleton {
+  background: linear-gradient(90deg, var(--sk-a) 25%, var(--sk-b) 50%, var(--sk-a) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

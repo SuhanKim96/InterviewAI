@@ -1,19 +1,26 @@
 import { useEffect, useState } from 'react'
+import { AnimatePresence, motion } from 'framer-motion'
 import { getSessions, getHistory } from '../api.js'
 import GrowthChart from './GrowthChart.jsx'
+import Skeleton from './ui/Skeleton.jsx'
+import { fadeInUp, StaggerList } from './ui/motion.jsx'
 import { T } from '../strings.js'
 
 
 export default function HistoryPage({ lang, onBack }) {
   const t = T[lang]
   const [sessions, setSessions] = useState([])
+  const [sessionsLoading, setSessionsLoading] = useState(true)
   const [selectedId, setSelectedId] = useState(null)
   const [history, setHistory] = useState(null)
   const [loading, setLoading] = useState(false)
   const [expandedId, setExpandedId] = useState(null)
 
   useEffect(() => {
-    getSessions().then(setSessions).catch(console.error)
+    getSessions()
+      .then(setSessions)
+      .catch(console.error)
+      .finally(() => setSessionsLoading(false))
   }, [])
 
   const handleSelect = async (id) => {
@@ -34,76 +41,97 @@ export default function HistoryPage({ lang, onBack }) {
 
   return (
     <div>
-      <div className="py-8 border-b border-zinc-100 mb-6">
+      <div className="py-8 border-b border-zinc-100 dark:border-white/10 mb-6">
         <button
           onClick={onBack}
-          className="flex items-center gap-1 text-xs text-zinc-400 hover:text-zinc-600 mb-4 transition-colors"
+          className="flex items-center gap-1 text-xs text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300 mb-4 transition-colors"
         >
           <svg viewBox="0 0 16 16" fill="currentColor" className="w-3 h-3">
             <path fillRule="evenodd" d="M15 8a.5.5 0 00-.5-.5H2.707l3.147-3.146a.5.5 0 10-.708-.708l-4 4a.5.5 0 000 .708l4 4a.5.5 0 00.708-.708L2.707 8.5H14.5A.5.5 0 0015 8z" clipRule="evenodd" />
           </svg>
           {t.homeBack}
         </button>
-        <h2 className="text-xl font-bold text-zinc-900 mb-1">{t.historyTitle}</h2>
-        <p className="text-sm text-zinc-500">{t.historyDesc}</p>
+        <h2 className="text-xl font-bold text-zinc-900 dark:text-zinc-100 mb-1">{t.historyTitle}</h2>
+        <p className="text-sm text-zinc-500 dark:text-zinc-400">{t.historyDesc}</p>
       </div>
 
-      <div className="grid grid-cols-3 gap-5">
-        <div className="col-span-1 space-y-2">
-          {sessions.length === 0 && (
-            <p className="text-sm text-zinc-400 py-8 text-center">{t.noSessions}</p>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+        <div className="md:col-span-1 space-y-2">
+          {sessionsLoading && (
+            <>
+              <Skeleton className="h-16 w-full rounded-lg" />
+              <Skeleton className="h-16 w-full rounded-lg" />
+              <Skeleton className="h-16 w-full rounded-lg" />
+            </>
           )}
+          {!sessionsLoading && sessions.length === 0 && (
+            <p className="text-sm text-zinc-400 dark:text-zinc-500 py-8 text-center">{t.noSessions}</p>
+          )}
+          {!sessionsLoading && sessions.length > 0 && (
+          <StaggerList stagger={0.06} className="space-y-2">
           {sessions.map((s) => (
-            <button
+            <motion.button
               key={s.id}
+              variants={fadeInUp}
+              whileTap={{ scale: 0.99 }}
               onClick={() => handleSelect(s.id)}
-              className={`w-full text-left px-4 py-3 rounded-lg border transition-colors ${
+              className={`w-full text-left px-4 py-3 rounded-xl border transition-colors ${
                 selectedId === s.id
-                  ? 'border-indigo-300 bg-indigo-50'
-                  : 'border-zinc-200 bg-white hover:border-zinc-300'
+                  ? 'border-indigo-300 dark:border-indigo-500/50 bg-indigo-50 dark:bg-indigo-500/10'
+                  : 'border-zinc-200/60 dark:border-white/10 bg-white/70 dark:bg-night-900/60 hover:border-zinc-300 dark:hover:border-white/25'
               }`}
             >
               <div className="flex items-center justify-between gap-2">
-                <p className="text-sm font-medium text-zinc-800 truncate">
+                <p className="text-sm font-medium text-zinc-800 dark:text-zinc-200 truncate">
                   {s.company || t.noCompany}
-                  {s.role && <span className="text-zinc-400 font-normal"> · {s.role}</span>}
+                  {s.role && <span className="text-zinc-400 dark:text-zinc-500 font-normal"> · {s.role}</span>}
                 </p>
                 {s.status === 'completed' && (
-                  <span className="text-xs text-indigo-400 font-medium shrink-0">{t.completed}</span>
+                  <span className="text-xs text-indigo-400 dark:text-indigo-300 font-medium shrink-0">{t.completed}</span>
                 )}
               </div>
-              <p className="text-xs text-zinc-400 mt-0.5">
+              <p className="text-xs text-zinc-400 dark:text-zinc-500 mt-0.5">
                 {new Date(s.created_at).toLocaleDateString(t.dateLocale)}
               </p>
-            </button>
+            </motion.button>
           ))}
+          </StaggerList>
+          )}
         </div>
 
-        <div className="col-span-2">
-          {!selectedId && (
-            <div className="flex items-center justify-center h-48 text-sm text-zinc-400 bg-white rounded-lg border border-zinc-200">
+        <div className="md:col-span-2">
+          {!selectedId && !sessionsLoading && (
+            <div className="flex items-center justify-center h-48 text-sm text-zinc-400 dark:text-zinc-500 bg-white/70 dark:bg-night-900/70 backdrop-blur-xl rounded-2xl border border-zinc-200/60 dark:border-white/10 shadow-lg shadow-zinc-950/5 dark:shadow-black/20">
               {t.selectSession}
             </div>
           )}
 
           {loading && (
-            <div className="flex items-center justify-center h-48 text-sm text-zinc-400 bg-white rounded-lg border border-zinc-200">
-              {t.loadingHistory}
+            <div className="space-y-4">
+              <Skeleton className="h-20 w-full rounded-lg" />
+              <Skeleton className="h-56 w-full rounded-lg" />
+              <Skeleton className="h-40 w-full rounded-lg" />
             </div>
           )}
 
           {history && !loading && (
-            <div className="space-y-4">
+            <motion.div
+              key={selectedId}
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+              className="space-y-4"
+            >
               {history.answers.some(a => a.overall !== null) && (() => {
                 const lowest = [...history.answers]
                   .filter(a => a.overall !== null)
                   .sort((a, b) => a.overall - b.overall)[0]
                 return (
-                  <div className="flex items-start gap-2.5 px-4 py-3 bg-amber-50 border border-amber-200 rounded-lg">
+                  <div className="flex items-start gap-2.5 px-4 py-3 bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/30 rounded-lg">
                     <svg viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4 text-amber-500 shrink-0 mt-0.5">
                       <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
                     </svg>
-                    <p className="text-sm text-amber-700">
+                    <p className="text-sm text-amber-700 dark:text-amber-300">
                       {t.lowestPrefix}<span className="font-semibold">"{lowest.question.slice(0, 30)}{lowest.question.length > 30 ? '...' : ''}"</span>{t.lowestSuffix(lowest.overall?.toFixed(1))}
                     </p>
                   </div>
@@ -111,63 +139,72 @@ export default function HistoryPage({ lang, onBack }) {
               })()}
 
               {history.summary && (
-                <div className="bg-indigo-50 rounded-lg border border-indigo-100 p-5">
-                  <p className="text-xs font-semibold text-indigo-500 uppercase tracking-wide mb-2">{t.overallFeedback}</p>
-                  <p className="text-sm text-zinc-700 leading-relaxed whitespace-pre-wrap">{history.summary}</p>
+                <div className="bg-indigo-50 dark:bg-indigo-500/10 rounded-lg border border-indigo-100 dark:border-indigo-500/30 p-5">
+                  <p className="text-xs font-semibold text-indigo-500 dark:text-indigo-300 uppercase tracking-wide mb-2">{t.overallFeedback}</p>
+                  <p className="text-sm text-zinc-700 dark:text-zinc-300 leading-relaxed whitespace-pre-wrap">{history.summary}</p>
                 </div>
               )}
 
-              <div className="bg-white rounded-lg border border-zinc-200 p-5">
-                <p className="text-xs font-semibold text-zinc-400 uppercase tracking-wide mb-4">{t.scoreTrend}</p>
+              <div className="bg-white/70 dark:bg-night-900/70 backdrop-blur-xl rounded-2xl border border-zinc-200/60 dark:border-white/10 shadow-lg shadow-zinc-950/5 dark:shadow-black/20 p-5">
+                <p className="text-xs font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wide mb-4">{t.scoreTrend}</p>
                 <GrowthChart data={history.score_trend} lang={lang} />
               </div>
 
-              <div className="bg-white rounded-lg border border-zinc-200 divide-y divide-zinc-100">
-                <div className="px-4 py-2 grid grid-cols-12 text-xs font-semibold text-zinc-400 uppercase tracking-wide">
+              <div className="bg-white/70 dark:bg-night-900/70 backdrop-blur-xl rounded-2xl border border-zinc-200/60 dark:border-white/10 shadow-lg shadow-zinc-950/5 dark:shadow-black/20 divide-y divide-zinc-100 dark:divide-white/10 overflow-hidden">
+                <div className="px-4 py-2 grid grid-cols-12 text-xs font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wide">
                   <span className="col-span-1">{t.colNum}</span>
                   <span className="col-span-1">{t.colType}</span>
                   <span className="col-span-8">{t.colQuestion}</span>
                   <span className="col-span-2 text-right">{t.colOverall}</span>
                 </div>
-                {history.answers.map((a, i) => (
-                  <div key={a.id}>
-                    {(() => {
-                      const lowestId = [...history.answers]
-                        .filter(x => x.overall !== null)
-                        .sort((x, y) => x.overall - y.overall)[0]?.id
-                      const isLowest = a.id === lowestId
-                      return (
-                        <button
-                          onClick={() => setExpandedId(prev => prev === a.id ? null : a.id)}
-                          className={`w-full px-4 py-3 grid grid-cols-12 items-center gap-2 hover:bg-zinc-50 transition-colors text-left ${isLowest ? 'bg-amber-50' : ''}`}
-                        >
-                          <span className="col-span-1 text-xs text-zinc-400">{i + 1}</span>
-                          <span className={`col-span-1 text-xs px-1.5 py-0.5 rounded font-medium ${
-                            a.category === 'technical' ? 'bg-indigo-50 text-indigo-600' :
-                            a.category === 'culture'   ? 'bg-emerald-50 text-emerald-600' :
-                                                         'bg-zinc-100 text-zinc-600'
-                          }`}>
-                            {t.categoryLabels[a.category] ?? a.category}
-                          </span>
-                          <p className="col-span-8 text-sm text-zinc-700 truncate">{a.question}</p>
-                          <span className={`col-span-2 text-xs text-right tabular-nums font-semibold ${isLowest ? 'text-amber-600' : 'text-zinc-500'}`}>
-                            {a.overall != null ? a.overall.toFixed(1) : '-'}
-                            {isLowest && ' 🔴'}
-                          </span>
-                        </button>
-                      )
-                    })()}
-                    {expandedId === a.id && a.answer_text && (
-                      <div className="px-4 pb-3">
-                        <p className="text-xs text-zinc-600 leading-relaxed bg-zinc-50 rounded-lg px-3 py-2.5 whitespace-pre-wrap border border-zinc-100">
-                          {a.answer_text}
-                        </p>
-                      </div>
-                    )}
-                  </div>
-                ))}
+                {history.answers.map((a, i) => {
+                  const lowestId = [...history.answers]
+                    .filter(x => x.overall !== null)
+                    .sort((x, y) => x.overall - y.overall)[0]?.id
+                  const isLowest = a.id === lowestId
+                  return (
+                    <div key={a.id}>
+                      <button
+                        onClick={() => setExpandedId(prev => prev === a.id ? null : a.id)}
+                        className={`w-full px-4 py-3 grid grid-cols-12 items-center gap-2 hover:bg-zinc-50 dark:hover:bg-night-800/50 transition-colors text-left ${isLowest ? 'bg-amber-50 dark:bg-amber-500/10' : ''}`}
+                      >
+                        <span className="col-span-1 text-xs text-zinc-400 dark:text-zinc-500 tabular-nums">{i + 1}</span>
+                        <span className={`col-span-1 text-xs px-1.5 py-0.5 rounded font-medium ${
+                          a.category === 'technical' ? 'bg-indigo-50 text-indigo-600 dark:bg-indigo-500/15 dark:text-indigo-400' :
+                          a.category === 'culture'   ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-500/15 dark:text-emerald-400' :
+                                                       'bg-zinc-100 text-zinc-600 dark:bg-night-800 dark:text-zinc-400'
+                        }`}>
+                          {t.categoryLabels[a.category] ?? a.category}
+                        </span>
+                        <p className="col-span-8 text-sm text-zinc-700 dark:text-zinc-300 truncate">{a.question}</p>
+                        <span className={`col-span-2 text-xs text-right font-mono font-semibold ${isLowest ? 'text-amber-600 dark:text-amber-400' : 'text-zinc-500 dark:text-zinc-400'}`}>
+                          {a.overall != null ? a.overall.toFixed(1) : '-'}
+                          {isLowest && ' 🔴'}
+                        </span>
+                      </button>
+                      <AnimatePresence initial={false}>
+                        {expandedId === a.id && a.answer_text && (
+                          <motion.div
+                            key="answer"
+                            initial={{ height: 0, opacity: 0 }}
+                            animate={{ height: 'auto', opacity: 1 }}
+                            exit={{ height: 0, opacity: 0 }}
+                            transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+                            className="overflow-hidden"
+                          >
+                            <div className="px-4 pb-3">
+                              <p className="text-xs text-zinc-600 dark:text-zinc-400 leading-relaxed bg-zinc-50 dark:bg-night-800/50 rounded-lg px-3 py-2.5 whitespace-pre-wrap border border-zinc-100 dark:border-white/15">
+                                {a.answer_text}
+                              </p>
+                            </div>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </div>
+                  )
+                })}
               </div>
-            </div>
+            </motion.div>
           )}
         </div>
       </div>

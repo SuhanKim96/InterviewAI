@@ -3,9 +3,23 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>InterviewAI</title>
+    <title>InterviewAI — AI 모의 면접 코치</title>
+    <meta name="description" content="채용 공고와 이력서를 분석해 맞춤 면접 질문을 만들고, 루브릭으로 답변을 평가하는 AI 모의 면접 코치." />
+    <meta property="og:title" content="InterviewAI — AI 모의 면접 코치" />
+    <meta property="og:description" content="채용 공고와 이력서를 분석해 맞춤 면접 질문을 만들고, 루브릭으로 답변을 평가합니다." />
+    <meta property="og:type" content="website" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <script>
+      // Apply the saved theme before first paint to avoid a flash of the wrong theme.
+      (function () {
+        var t = localStorage.getItem('theme')
+        if (t === 'dark' || (!t && matchMedia('(prefers-color-scheme: dark)').matches)) {
+          document.documentElement.classList.add('dark')
+        }
+      })()
+    </script>
   </head>
   <body>
     <div id="root"></div>
